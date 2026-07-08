@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>计费公式管理 - 高保真原型 v2</title>
+<style>
+:root{--c-primary:#276FF5;--c-primary-light:rgba(39,111,245,.10);--c-primary-hover:rgba(39,111,245,.06);--c-text:rgba(0,0,0,.82);--c-text-p:rgba(0,0,0,.94);--c-text-s:rgba(0,0,0,.64);--c-text-m:rgba(0,0,0,.46);--c-bg:#F5F6F8;--c-border:rgba(0,0,0,.06);--c-danger:#FF3B30;--c-success:#34C759;--c-warning:#FF9500;--r-md:8px;--r-lg:12px;--r-xl:16px;--sh-md:0 2px 8px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--c-bg);color:var(--c-text);font-size:14px;line-height:1.5;height:100vh;overflow:hidden}
+.layout{display:flex;height:100vh}
+.side{width:220px;background:#fff;border-right:1px solid var(--c-border);padding:20px 0;flex-shrink:0}
+.side-t{padding:0 20px 16px;font-size:16px;font-weight:700}
+.side a{display:block;padding:10px 20px;color:var(--c-text-s);text-decoration:none;font-size:13px}
+.side a:hover{background:var(--c-primary-hover)}
+.side a.on{background:var(--c-primary-light);color:var(--c-primary);font-weight:600}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.hdr{padding:24px 24px 16px;display:flex;align-items:center;justify-content:space-between}
+.hdr h1{font-size:22px;font-weight:700}
+.hdr-acts{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-md);font-size:13px;font-weight:600;cursor:pointer;border:none;outline:none;font-family:inherit;transition:all .15s}
+.btn-p{background:var(--c-primary);color:#fff}.btn-p:hover{background:#1F5FD9}
+.btn-s{background:#fff;color:var(--c-text-s);border:1px solid rgba(0,0,0,.08)}.btn-s:hover{background:rgba(0,0,0,.02)}
+.btn-d{background:rgba(255,59,48,.08);color:var(--c-danger);border:1px solid rgba(255,59,48,.15)}
+.btn-t{background:transparent;color:var(--c-primary);padding:4px 8px}.btn-t:hover{background:var(--c-primary-hover)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.tb{padding:0 24px 16px;display:flex;align-items:center;gap:12px}
+.si{width:280px;height:36px;padding:0 12px;border:1px solid var(--c-border);border-radius:var(--r-md);font-size:13px;outline:none}
+.si:focus{border-color:var(--c-primary);box-shadow:0 0 0 2px rgba(39,111,245,.1)}
+.tb-r{margin-left:auto;font-size:12px;color:var(--c-text-m)}
+.sp{flex:1;display:flex;padding:0 24px 24px;gap:16px;min-height:0}
+.lp{width:360px;flex-shrink:0;display:flex;flex-direction:column;background:#fff;border-radius:var(--r-xl);border:1px solid var(--c-border);box-shadow:var(--sh-md);overflow:hidden}
+.lp-h{padding:14px 16px;border-bottom:1px solid var(--c-border);font-size:13px;font-weight:600;color:var(--c-text-s)}
+.lp-b{flex:1;overflow-y:auto;padding:8px}
+.grp{font-size:11px;font-weight:700;color:var(--c-text-m);padding:8px 14px 4px;text-transform:uppercase;letter-spacing:.5px}
+.fi-item{padding:12px 14px;border-radius:var(--r-lg);cursor:pointer;margin-bottom:4px;border:2px solid transparent;transition:all .15s}
+.fi-item:hover{background:rgba(39,111,245,.03)}.fi-item.on{border-color:var(--c-primary);background:rgba(39,111,245,.04)}
+.fi-n{font-size:14px;font-weight:600;color:var(--c-text-p);margin-bottom:2px}
+.fi-m{font-size:12px;color:var(--c-text-m);display:flex;gap:8px;align-items:center}
+.fi-tag{display:inline-flex;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(39,111,245,.06);color:var(--c-primary)}
+.fi-badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.b-t1{background:rgba(34,197,94,.1);color:#15803d}
+.b-t2{background:rgba(39,111,245,.1);color:#1850C8}
+.b-t3{background:rgba(168,85,247,.1);color:#7c3aed}
+.b-t4{background:rgba(245,158,11,.1);color:#b45309}
+.b-t5{background:rgba(239,68,68,.1);color:#dc2626}
+.b-t6{background:rgba(107,114,128,.1);color:#4b5563}
+.rp{flex:1;background:#fff;border-radius:var(--r-xl);border:1px solid var(--c-border);box-shadow:var(--sh-md);overflow-y:auto;display:flex;flex-direction:column}
+.emp{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--c-text-m)}
+.emp-i{font-size:48px;margin-bottom:16px;opacity:.4}.emp-t{font-size:15px;font-weight:600;color:var(--c-text-s)}
+.rp-h{padding:20px 24px 16px;border-bottom:1px solid var(--c-border);display:flex;align-items:center;justify-content:space-between}
+.rp-t{font-size:18px;font-weight:700}
+.rp-b{flex:1;padding:20px 24px;overflow-y:auto}
+.sec{margin-bottom:28px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-t{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sec-t::before{content:'';width:3px;height:14px;background:var(--c-primary);border-radius:2px}
+.ig{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.il{font-size:12px;color:var(--c-text-m);margin-bottom:4px}
+.iv{font-size:14px;font-weight:600;color:var(--c-text-p)}
+.iv.mo{font-family:'SF Mono',Monaco,monospace;font-size:13px}
+.fbox{background:rgba(39,111,245,.04);border:1px solid rgba(39,111,245,.12);border-radius:var(--r-lg);padding:16px}
+.fbox-l{font-size:12px;color:var(--c-primary);font-weight:600;margin-bottom:8px}
+.fbox-c{font-family:'SF Mono',Monaco,monospace;font-size:14px;font-weight:600;line-height:1.8}
+.tier-tbl{width:100%;border-collapse:collapse;margin-top:8px}
+.tier-tbl th{font-size:12px;font-weight:600;color:var(--c-text-m);text-align:left;padding:8px 12px;border-bottom:1px solid var(--c-border)}
+.tier-tbl td{padding:8px 12px;font-size:13px;border-bottom:1px solid var(--c-border)}
+.tier-tbl tr:last-child td{border-bottom:none}
+.tier-free{color:var(--c-success);font-weight:600}
+.tier-price{font-family:'SF Mono',Monaco,monospace;font-weight:600}
+.pv-card{background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:var(--r-lg);padding:16px}
+.pv-t{font-size:12px;font-weight:600;color:#b45309;margin-bottom:12px}
+.pv-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.pv-in{width:100px;height:30px;padding:0 8px;border:1px solid var(--c-border);border-radius:4px;font-size:12px;font-family:'SF Mono',Monaco,monospace}
+.pv-lb{font-size:12px;color:var(--c-text-s);width:80px}
+.pv-res{font-size:16px;font-weight:700;color:var(--c-primary);margin-top:8px}
+.st-ok{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(34,197,94,.1);color:#15803d}
+/* Modals */
+.ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
+.ov.show{display:flex}
+.md{background:#fff;border-radius:var(--r-xl);width:640px;max-height:85vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.12)}
+.md-h{padding:20px 24px 16px;border-bottom:1px solid var(--c-border);display:flex;align-items:center;justify-content:space-between}
+.md-t{font-size:16px;font-weight:700}
+.md-x{width:28px;height:28px;border:none;background:transparent;cursor:pointer;font-size:18px;color:var(--c-text-m);border-radius:var(--r-md)}.md-x:hover{background:rgba(0,0,0,.04)}
+.md-b{padding:20px 24px}
+.md-f{padding:16px 24px;border-top:1px solid var(--c-border);display:flex;justify-content:flex-end;gap:8px}
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:13px;font-weight:600;margin-bottom:6px}.fl .rq{color:var(--c-danger)}
+.fi{width:100%;height:36px;padding:0 12px;border:1px solid var(--c-border);border-radius:var(--r-md);font-size:13px;outline:none}
+.fi:focus{border-color:var(--c-primary);box-shadow:0 0 0 2px rgba(39,111,245,.1)}
+.fs{width:100%;height:36px;padding:0 12px;border:1px solid var(--c-border);border-radius:var(--r-md);font-size:13px;outline:none;background:#fff}
+.fh{font-size:11px;color:var(--c-text-m);margin-top:4px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.tpl-opt{padding:10px 12px;border:2px solid var(--c-border);border-radius:var(--r-md);cursor:pointer;text-align:center;transition:all .15s}
+.tpl-opt:hover{border-color:rgba(39,111,245,.3)}
+.tpl-opt.sel{border-color:var(--c-primary);background:rgba(39,111,245,.04)}
+.tpl-opt-n{font-size:13px;font-weight:600;margin-bottom:2px}
+.tpl-opt-d{font-size:11px;color:var(--c-text-m)}
+#toast{display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 24px;border-radius:var(--r-md);font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side"><div class="side-t">KDManage</div><nav><a href="#">大模型系数管理</a><a href="#" class="on">计费公式管理</a><a href="#">运营管理</a><a href="#">许可管理</a></nav></aside>
+<main class="main">
+<div class="hdr"><h1>计费公式管理</h1><div class="hdr-acts"><button class="btn btn-s" onclick="showM('impM')">导入</button><button class="btn btn-s" onclick="msg('已导出全部公式配置')">导出</button><button class="btn btn-p" onclick="showM('createM')">+ 创建公式</button></div></div>
+<div class="tb"><input class="si" placeholder="搜索计费类型 / 供应商 / 服务规格" oninput="filter(this.value)"><div class="tb-r">共 <b id="cnt">8</b> 条配置</div></div>
+<div class="sp">
+<div class="lp"><div class="lp-h">公式列表（按类型分组）</div><div class="lp-b" id="list"></div></div>
+<div class="rp"><div class="emp" id="emp"><div class="emp-i">⚙️</div><div class="emp-t">选择一条公式查看详情</div></div><div id="det" style="display:none"></div></div>
+</div>
+</main>
+</div>
+
+<!-- Create Modal -->
+<div class="ov" id="createM"><div class="md"><div class="md-h"><div class="md-t">创建计费公式</div><button class="md-x" onclick="hideM('createM')">×</button></div><div class="md-b">
+<div class="fr"><div class="fg"><label class="fl">计费类型<span class="rq">*</span></label><select class="fs"><option value="">选择类型</option><option>WEBSEARCH</option><option>OCR</option><option>IMAGE_GEN</option><option>ASR</option><option>TTS</option><option>WPS</option><option>VIDEO_GEN</option></select></div>
+<div class="fg"><label class="fl">供应商<span class="rq">*</span></label><select class="fs"><option value="">选择供应商</option><option>Google</option><option>百度</option><option>讯飞</option><option>即梦</option><option>WPS</option><option>MiniMax</option><option>阿里/通义</option></select></div></div>
+<div class="fg"><label class="fl">服务规格<span class="rq">*</span></label><input class="fi" placeholder="如：通用识别 / 发票识别 / 1024 / 标准版"><div class="fh">该供应商下的具体产品/档位</div></div>
+<div class="fg"><label class="fl">选择模板<span class="rq">*</span></label>
+<div class="tpl-grid">
+<div class="tpl-opt sel" onclick="selTpl(this,'T1')"><div class="tpl-opt-n">T1 按次计费</div><div class="tpl-opt-d">WebSearch、WPS</div></div>
+<div class="tpl-opt" onclick="selTpl(this,'T2')"><div class="tpl-opt-n">T2 按时长计费</div><div class="tpl-opt-d">语音识别</div></div>
+<div class="tpl-opt" onclick="selTpl(this,'T3')"><div class="tpl-opt-n">T3 按字符量</div><div class="tpl-opt-d">TTS转语音</div></div>
+<div class="tpl-opt" onclick="selTpl(this,'T4')"><div class="tpl-opt-n">T4 按数量计费</div><div class="tpl-opt-d">图像生成</div></div>
+<div class="tpl-opt" onclick="selTpl(this,'T5')"><div class="tpl-opt-n">T5 阶梯计费</div><div class="tpl-opt-d">OCR/ASR大量</div></div>
+<div class="tpl-opt" onclick="selTpl(this,'T6')"><div class="tpl-opt-n">T6 自定义公式</div><div class="tpl-opt-d">复杂场景</div></div>
+</div></div>
+<div id="tplFields">
+<div class="fr"><div class="fg"><label class="fl">单价（点数/次）<span class="rq">*</span></label><input type="number" class="fi" placeholder="如 0.67" step="0.01"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="次"></div></div>
+</div>
+</div><div class="md-f"><button class="btn btn-s" onclick="hideM('createM')">取消</button><button class="btn btn-p" onclick="hideM('createM');msg('创建成功')">创建</button></div></div></div>
+
+<!-- Edit Modal -->
+<div class="ov" id="editM"><div class="md"><div class="md-h"><div class="md-t" id="editTitle">编辑公式</div><button class="md-x" onclick="hideM('editM')">×</button></div><div class="md-b" id="editBody"></div><div class="md-f"><button class="btn btn-s" onclick="hideM('editM')">取消</button><button class="btn btn-p" onclick="hideM('editM');msg('已保存（新版本已生成）')">保存</button></div></div></div>
+
+<!-- Import Modal -->
+<div class="ov" id="impM"><div class="md"><div class="md-h"><div class="md-t">导入公式配置</div><button class="md-x" onclick="hideM('impM')">×</button></div><div class="md-b">
+<div class="fg"><label class="fl">选择文件</label><div style="border:2px dashed rgba(39,111,245,.3);border-radius:var(--r-lg);padding:32px;text-align:center;cursor:pointer;background:rgba(39,111,245,.02)"><div style="font-size:24px;margin-bottom:8px">📄</div><div style="font-size:13px;color:var(--c-text-s)">点击或拖拽上传 CSV / JSON 文件</div></div></div>
+<div class="fg"><label class="fl">导入模式</label><select class="fs"><option>覆盖更新</option><option>仅新增</option><option>全量替换</option></select></div>
+</div><div class="md-f"><button class="btn btn-s" onclick="hideM('impM')">取消</button><button class="btn btn-p" onclick="hideM('impM');msg('导入成功')">确认导入</button></div></div></div>
+
+<div id="toast"></div>
+
+<script>
+const TM={T1:{n:'按次计费',f:'unit_price × metric_volume',b:'b-t1'},T2:{n:'按时长计费',f:'unit_price × Math.ceil(duration / billing_unit)',b:'b-t2'},T3:{n:'按字符量计费',f:'unit_price × Math.ceil(char_count / billing_unit)',b:'b-t3'},T4:{n:'按数量计费',f:'unit_price × metric_volume',b:'b-t4'},T5:{n:'阶梯计费',f:'tier_price(monthly_total) × metric_volume',b:'b-t5'},T6:{n:'自定义公式',f:'[QLExpress表达式]',b:'b-t6'}};
+
+const D=[
+{id:1,type:'WEBSEARCH',provider:'Google',spec:'搜索',tpl:'T1',price:0.67,unit:'次'},
+{id:2,type:'OCR',provider:'百度',spec:'通用识别',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:200,p:0},{th:10000,p:0.13},{th:-1,p:0.10}]},
+{id:3,type:'OCR',provider:'百度',spec:'发票识别',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:100,p:0},{th:5000,p:0.8},{th:-1,p:0.5}]},
+{id:4,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-2k',tpl:'T4',price:3.0,unit:'张'},
+{id:5,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-3k',tpl:'T4',price:4.5,unit:'张'},
+{id:6,type:'ASR',provider:'讯飞',spec:'标准版',tpl:'T2',price:0.1,unit:'15秒',billingUnit:15},
+{id:7,type:'TTS',provider:'阿里/通义',spec:'Qwen3-TTS-VD',tpl:'T3',price:0.5,unit:'万字符',billingUnit:10000},
+{id:8,type:'WPS',provider:'WPS',spec:'默认',tpl:'T1',price:1.0,unit:'次'},
+];
+
+let cur=null;
+function render(f=''){
+  const fl=D.filter(d=>!f||d.type.toLowerCase().includes(f)||d.provider.includes(f)||d.spec.includes(f));
+  document.getElementById('cnt').textContent=fl.length;
+  const groups={};fl.forEach(d=>{if(!groups[d.type])groups[d.type]=[];groups[d.type].push(d)});
+  let h='';
+  Object.entries(groups).forEach(([type,items])=>{
+    h+=`<div class="grp">${type}</div>`;
+    items.forEach(d=>{
+      h+=`<div class="fi-item${cur&&cur.id===d.id?' on':''}" onclick="sel(${d.id})"><div class="fi-n">${d.provider} · ${d.spec}</div><div class="fi-m"><span class="fi-badge ${TM[d.tpl].b}">${TM[d.tpl].n}</span>${d.price!=null?`<span style="font-family:monospace;font-size:11px;color:var(--c-text-s)">${d.price}点/${d.unit}</span>`:'<span style="font-size:11px;color:var(--c-text-m)">按阶梯</span>'}</div></div>`;
+    });
+  });
+  document.getElementById('list').innerHTML=h;
+}
+function filter(v){render(v.toLowerCase())}
+function sel(id){
+  cur=D.find(d=>d.id===id);render();
+  document.getElementById('emp').style.display='none';
+  const det=document.getElementById('det');det.style.display='block';
+  det.innerHTML=`<div class="rp-h"><div class="rp-t">${cur.provider} · ${cur.spec}</div><div style="display:flex;gap:8px"><span class="st-ok">● 启用</span><button class="btn btn-sm btn-s" onclick="openEdit()">编辑</button><button class="btn btn-sm btn-d" onclick="doDel()">删除</button></div></div><div class="rp-b">${renderDet()}</div>`;
+}
+function renderDet(){
+  const d=cur,tm=TM[d.tpl];
+  let h=`<div class="sec"><div class="sec-h"><div class="sec-t">基本信息</div></div><div class="ig"><div><div class="il">计费类型</div><div class="iv">${d.type}</div></div><div><div class="il">供应商</div><div class="iv">${d.provider}</div></div><div><div class="il">服务规格</div><div class="iv mo">${d.spec}</div></div><div><div class="il">模板</div><div class="iv"><span class="fi-badge ${tm.b}">${tm.n}</span></div></div>${d.price!=null?`<div><div class="il">单价</div><div class="iv mo">${d.price} 点/${d.unit}</div></div>`:''}${d.billingUnit?`<div><div class="il">计费单位</div><div class="iv">${d.billingUnit}${d.tpl==='T3'?'字符':'秒'}</div></div>`:''}<div><div class="il">公式版本</div><div class="iv mo">v1.0.20260703</div></div></div></div>`;
+  h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算公式</div></div><div class="fbox"><div class="fbox-l">${tm.n}</div><div class="fbox-c">${tm.f}</div></div></div>`;
+  if(d.tiers){
+    h+=`<div class="sec"><div class="sec-h"><div class="sec-t">阶梯规则</div></div><div style="margin-bottom:8px;font-size:12px;color:var(--c-text-s)">模式：<b>${d.tierMode==='INCREMENTAL'?'超额计费（电费模式）':'全量计费（档位模式）'}</b></div><table class="tier-tbl"><tr><th>段</th><th>累计量上限</th><th>单价（点/${d.unit}）</th></tr>`;
+    d.tiers.forEach((t,i)=>{
+      const from=i===0?0:d.tiers[i-1].th+1;
+      const to=t.th===-1?'∞':t.th.toLocaleString();
+      h+=`<tr><td>${i+1}</td><td>${from.toLocaleString()} ~ ${to}</td><td>${t.p===0?'<span class="tier-free">免费</span>':`<span class="tier-price">${t.p}</span>`}</td></tr>`;
+    });
+    h+=`</table></div>`;
+    // T5 preview
+    h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算预览</div></div><div class="pv-card"><div class="pv-t">📐 输入数据验证</div><div class="pv-row"><span class="pv-lb">本月累计：</span><input type="number" class="pv-in" value="500" id="pvTierTotal" oninput="updPvT5()"></div><div class="pv-row"><span class="pv-lb">本次数量：</span><input type="number" class="pv-in" value="1" id="pvTierN" oninput="updPvT5()"></div><div class="pv-res" id="pvR"></div></div></div>`;
+  }
+  // Preview
+  if(d.tpl==='T1'||d.tpl==='T4'){
+    h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算预览</div></div><div class="pv-card"><div class="pv-t">📐 输入数据验证</div><div class="pv-row"><span class="pv-lb">数量：</span><input type="number" class="pv-in" value="1" id="pvN" oninput="updPv()"><span style="font-size:12px;color:var(--c-text-m)">${d.unit}</span></div><div class="pv-res" id="pvR">= ${d.price} 点</div></div></div>`;
+  }else if(d.tpl==='T2'){
+    h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算预览</div></div><div class="pv-card"><div class="pv-t">📐 输入数据验证</div><div class="pv-row"><span class="pv-lb">时长（秒）：</span><input type="number" class="pv-in" value="38" id="pvDur" oninput="updPvT2()"></div><div class="pv-res" id="pvR">= ${(d.price*Math.ceil(38/d.billingUnit)).toFixed(2)} 点（${Math.ceil(38/d.billingUnit)}个计费单位）</div></div></div>`;
+  }else if(d.tpl==='T3'){
+    h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算预览</div></div><div class="pv-card"><div class="pv-t">📐 输入数据验证</div><div class="pv-row"><span class="pv-lb">字符数：</span><input type="number" class="pv-in" value="25000" id="pvCh" oninput="updPvT3()"></div><div class="pv-res" id="pvR">= ${(d.price*Math.ceil(25000/d.billingUnit)).toFixed(2)} 点（${Math.ceil(25000/d.billingUnit)}个计费单位）</div></div></div>`;
+  }
+  // 版本历史
+  h+=`<div class="sec"><div class="sec-h"><div class="sec-t">版本历史</div></div><div style="max-height:160px;overflow-y:auto"><div class="vi" onclick="msg('v1.0.20260703：单价=${d.price||"按阶梯"}（点击可查看完整快照并回滚）')" style="cursor:pointer;padding:8px 0;border-bottom:1px solid var(--c-border);display:flex;justify-content:space-between;font-size:12px"><span class="vc">v1.0.20260703</span><span class="vt">2026-07-03</span></div><div class="vi" onclick="msg('查看该版本完整配置快照')" style="cursor:pointer;padding:8px 0;display:flex;justify-content:space-between;font-size:12px"><span class="vc">v0.9.20260620</span><span class="vt">2026-06-20</span></div></div></div>`;
+  return h;
+}
+function updPv(){const n=parseInt(document.getElementById('pvN').value)||1;document.getElementById('pvR').textContent=`= ${(cur.price*n).toFixed(2)} 点`}
+function updPvT2(){const d=parseInt(document.getElementById('pvDur').value)||0;const u=Math.ceil(d/cur.billingUnit);document.getElementById('pvR').textContent=`= ${(cur.price*u).toFixed(2)} 点（${u}个计费单位）`}
+function updPvT3(){const c=parseInt(document.getElementById('pvCh').value)||0;const u=Math.ceil(c/cur.billingUnit);document.getElementById('pvR').textContent=`= ${(cur.price*u).toFixed(2)} 点（${u}个计费单位）`}
+function updPvT5(){
+  if(!cur||!cur.tiers)return;
+  const total=parseInt(document.getElementById('pvTierTotal').value)||0;
+  const n=parseInt(document.getElementById('pvTierN').value)||1;
+  let price=0;
+  for(let i=0;i<cur.tiers.length;i++){
+    const t=cur.tiers[i];
+    if(t.th===-1||total<=t.th){price=t.p;break;}
+  }
+  const pts=price*n;
+  document.getElementById('pvR').textContent=`= ${pts.toFixed(2)} 点（累计${total}落入单价${price}段，本次${n}次）`;
+}
+
+function openEdit(){
+  document.getElementById('editTitle').textContent=`编辑 - ${cur.provider} · ${cur.spec}`;
+  let h='';
+  if(cur.tpl==='T1'||cur.tpl==='T4'){
+    h=`<div class="fr"><div class="fg"><label class="fl">单价（点/${cur.unit}）<span class="rq">*</span></label><input type="number" class="fi" value="${cur.price}" step="0.01"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="${cur.unit}"></div></div>`;
+  }else if(cur.tpl==='T2'){
+    h=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" value="${cur.price}" step="0.01"></div><div class="fg"><label class="fl">计费单位（秒）<span class="rq">*</span></label><input type="number" class="fi" value="${cur.billingUnit}"></div></div>`;
+  }else if(cur.tpl==='T3'){
+    h=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" value="${cur.price}" step="0.01"></div><div class="fg"><label class="fl">计费单位（字符数）<span class="rq">*</span></label><input type="number" class="fi" value="${cur.billingUnit}"></div></div>`;
+  }else if(cur.tpl==='T5'){
+    h=`<div class="fg"><label class="fl">阶梯模式</label><select class="fs"><option ${cur.tierMode==='INCREMENTAL'?'selected':''}>超额计费（电费模式）</option><option ${cur.tierMode==='TIERED'?'selected':''}>全量计费（档位模式）</option></select></div>`;
+    h+=`<div class="fg"><label class="fl">阶梯规则</label><table class="tier-tbl" style="border:1px solid var(--c-border);border-radius:8px;overflow:hidden"><tr><th>累计量上限</th><th>单价（点/${cur.unit}）</th><th></th></tr>`;
+    cur.tiers.forEach((t,i)=>{
+      if(t.th===-1){h+=`<tr><td><span style="color:var(--c-text-m)">∞（兜底）</span></td><td><input type="number" class="fi" value="${t.p}" style="width:80px;height:28px" step="0.01"></td><td></td></tr>`;}
+      else{h+=`<tr><td><input type="number" class="fi" value="${t.th}" style="width:100px;height:28px"></td><td><input type="number" class="fi" value="${t.p}" style="width:80px;height:28px" step="0.01"></td><td><button class="btn btn-sm btn-t" style="color:var(--c-danger)" onclick="msg('已删除该阶梯段')">删除</button></td></tr>`;}
+    });
+    h+=`</table><button class="btn btn-sm btn-t" style="margin-top:8px" onclick="msg('已添加新阶梯段')">+ 添加阶梯段</button></div>`;
+  }
+  h+=`<hr style="border:none;border-top:1px solid var(--c-border);margin:16px 0"><div class="fg"><label class="fl">生效方式</label><select class="fs"><option>立即生效</option><option>定时生效</option></select></div>`;
+  document.getElementById('editBody').innerHTML=h;
+  showM('editM');
+}
+function doDel(){if(confirm(`确定删除「${cur.provider} · ${cur.spec}」的公式配置？`)){msg('已删除');document.getElementById('det').style.display='none';document.getElementById('emp').style.display='flex';cur=null;render();}}
+
+function selTpl(el,tpl){
+  document.querySelectorAll('.tpl-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');
+  const f=document.getElementById('tplFields');
+  if(tpl==='T1'||tpl==='T4')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" placeholder="点数/次" step="0.01"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="${tpl==='T4'?'张':'次'}"></div></div>`;
+  else if(tpl==='T2')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01"></div><div class="fg"><label class="fl">计费单位（秒）<span class="rq">*</span></label><input type="number" class="fi" placeholder="如 15" value="15"></div></div><div class="fh">厂商按多少秒为一个计费单位</div>`;
+  else if(tpl==='T3')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01"></div><div class="fg"><label class="fl">计费单位（字符数）<span class="rq">*</span></label><input type="number" class="fi" value="10000"></div></div><div class="fh">每多少字符为一个计费单位</div>`;
+  else if(tpl==='T5')f.innerHTML=`<div class="fg"><label class="fl">阶梯模式<span class="rq">*</span></label><select class="fs"><option>超额计费（电费模式）</option><option>全量计费（档位模式）</option></select><div class="fh">超额计费：每段按该段单价；全量计费：当前调用按所在段统一价</div></div><div class="fg"><label class="fl">阶梯规则<span class="rq">*</span></label><table class="tier-tbl" style="border:1px solid var(--c-border);border-radius:8px;overflow:hidden"><tr><th>累计量上限</th><th>单价（点/次）</th><th></th></tr><tr><td><input type="number" class="fi" value="200" style="width:100px;height:28px"></td><td><input type="number" class="fi" value="0" style="width:80px;height:28px"></td><td><button class="btn btn-sm btn-t" style="color:var(--c-danger)">删除</button></td></tr><tr><td><input type="number" class="fi" value="10000" style="width:100px;height:28px"></td><td><input type="number" class="fi" value="0.13" style="width:80px;height:28px"></td><td><button class="btn btn-sm btn-t" style="color:var(--c-danger)">删除</button></td></tr><tr><td><span style="color:var(--c-text-m)">∞</span></td><td><input type="number" class="fi" value="0.10" style="width:80px;height:28px"></td><td></td></tr></table><button class="btn btn-sm btn-t" style="margin-top:8px">+ 添加阶梯段</button></div>`;
+  else if(tpl==='T6')f.innerHTML=`<div class="fg"><label class="fl">公式表达式<span class="rq">*</span></label><textarea style="width:100%;min-height:80px;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--r-md);font-size:13px;font-family:'SF Mono',Monaco,monospace;outline:none;resize:vertical" placeholder="如：base * Math.ceil(duration / 10.0) * resolution_factor"></textarea><div class="fh">使用QLExpress语法，变量从event_data中自动注入</div></div>`;
+}
+
+function showM(id){document.getElementById(id).classList.add('show')}
+function hideM(id){document.getElementById(id).classList.remove('show')}
+function msg(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2000)}
+render();
+sel(D[0].id);
+</script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>计量计费运营管理 - 高保真原型</title>
+<style>
+:root {
+  --color-primary: #276FF5;
+  --color-primary-light: rgba(39,111,245,0.10);
+  --color-primary-hover: rgba(39,111,245,0.06);
+  --color-text: rgba(0,0,0,0.82);
+  --color-text-primary: rgba(0,0,0,0.94);
+  --color-text-secondary: rgba(0,0,0,0.64);
+  --color-text-muted: rgba(0,0,0,0.46);
+  --color-bg: #F5F6F8;
+  --color-border: rgba(0,0,0,0.06);
+  --color-danger: #FF3B30;
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.04);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif; background:var(--color-bg); color:var(--color-text); font-size:14px; line-height:1.5; height:100vh; overflow:hidden; }
+
+.app-layout { display:flex; height:100vh; }
+.sidebar { width:220px; background:#fff; border-right:1px solid var(--color-border); padding:20px 0; flex-shrink:0; }
+.sidebar-title { padding:0 20px 16px; font-size:16px; font-weight:700; }
+.sidebar-nav a { display:block; padding:10px 20px; color:var(--color-text-secondary); text-decoration:none; font-size:13px; }
+.sidebar-nav a:hover { background:var(--color-primary-hover); }
+.sidebar-nav a.active { background:var(--color-primary-light); color:var(--color-primary); font-weight:600; }
+
+.main-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.page-header { padding:24px 24px 16px; display:flex; align-items:center; justify-content:space-between; }
+.page-header h1 { font-size:22px; font-weight:700; }
+.header-actions { display:flex; gap:8px; }
+
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--radius-md); font-size:13px; font-weight:600; cursor:pointer; border:none; outline:none; transition:all .15s; font-family:inherit; }
+.btn-primary { background:var(--color-primary); color:#fff; }
+.btn-primary:hover { background:#1F5FD9; }
+.btn-secondary { background:#fff; color:var(--color-text-secondary); border:1px solid rgba(0,0,0,0.08); }
+.btn-secondary:hover { background:rgba(0,0,0,0.02); }
+.btn-warning { background:rgba(255,149,0,0.1); color:#b45309; border:1px solid rgba(255,149,0,0.2); }
+.btn-sm { padding:5px 12px; font-size:12px; }
+.btn-text { background:transparent; color:var(--color-primary); padding:4px 8px; }
+
+/* Tabs */
+.tabs { display:flex; gap:0; padding:0 24px; border-bottom:1px solid var(--color-border); }
+.tab { padding:12px 20px; font-size:13px; font-weight:600; color:var(--color-text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.tab:hover { color:var(--color-text); }
+.tab.active { color:var(--color-primary); border-bottom-color:var(--color-primary); }
+
+/* Content area */
+.content-area { flex:1; overflow-y:auto; padding:24px; }
+
+/* Card */
+.ops-card { background:#fff; border-radius:var(--radius-xl); border:1px solid var(--color-border); box-shadow:var(--shadow-md); padding:24px; margin-bottom:20px; }
+.ops-card-title { font-size:15px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.ops-card-title::before { content:''; width:3px; height:14px; background:var(--color-primary); border-radius:2px; }
+
+/* Scheduled list */
+.scheduled-list { }
+.scheduled-item { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border:1px solid var(--color-border); border-radius:var(--radius-lg); margin-bottom:8px; transition:box-shadow .15s; }
+.scheduled-item:hover { box-shadow:var(--shadow-md); }
+.scheduled-info { flex:1; }
+.scheduled-model { font-size:14px; font-weight:600; color:var(--color-text-primary); }
+.scheduled-desc { font-size:12px; color:var(--color-text-muted); margin-top:2px; }
+.scheduled-time { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(255,149,0,0.1); color:#b45309; }
+.scheduled-actions { display:flex; gap:8px; margin-left:16px; }
+
+/* History list */
+.history-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--color-border); }
+.history-item:last-child { border-bottom:none; }
+.history-dot { width:8px; height:8px; border-radius:50%; background:var(--color-primary); margin-top:6px; flex-shrink:0; }
+.history-content { flex:1; }
+.history-title { font-size:13px; font-weight:600; color:var(--color-text-primary); }
+.history-meta { font-size:12px; color:var(--color-text-muted); margin-top:2px; }
+.history-diff { margin-top:8px; padding:8px 12px; background:rgba(0,0,0,0.02); border-radius:var(--radius-md); font-size:12px; font-family:'SF Mono',Monaco,monospace; }
+.diff-old { color:var(--color-danger); text-decoration:line-through; }
+.diff-new { color:var(--color-success); font-weight:600; }
+
+/* Env sync */
+.env-select { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+.env-box { padding:12px 20px; border:2px solid var(--color-border); border-radius:var(--radius-lg); min-width:160px; text-align:center; cursor:pointer; transition:all .15s; }
+.env-box.selected { border-color:var(--color-primary); background:rgba(39,111,245,0.04); }
+.env-box-name { font-size:14px; font-weight:600; }
+.env-box-desc { font-size:11px; color:var(--color-text-muted); }
+.env-arrow { font-size:20px; color:var(--color-text-muted); }
+
+/* Diff table */
+.diff-table { width:100%; border-collapse:collapse; font-size:13px; }
+.diff-table th { text-align:left; padding:8px 12px; font-size:12px; font-weight:600; color:var(--color-text-muted); border-bottom:1px solid var(--color-border); text-transform:uppercase; letter-spacing:0.5px; }
+.diff-table td { padding:8px 12px; border-bottom:1px solid var(--color-border); }
+.diff-table tr:last-child td { border-bottom:none; }
+.diff-add { background:rgba(34,197,94,0.06); }
+.diff-change { background:rgba(255,149,0,0.06); }
+.diff-badge { display:inline-flex; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-add { background:rgba(34,197,94,0.1); color:#15803d; }
+.badge-change { background:rgba(255,149,0,0.1); color:#b45309; }
+.badge-remove { background:rgba(255,59,48,0.1); color:var(--color-danger); }
+
+/* Batch bar */
+.batch-bar { background:#fff; border:1px solid var(--color-primary); border-radius:var(--radius-lg); padding:12px 20px; margin-bottom:16px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 12px rgba(39,111,245,0.1); }
+.batch-count { font-size:14px; font-weight:600; color:var(--color-primary); }
+.batch-divider { width:1px; height:24px; background:var(--color-border); }
+
+/* Import preview */
+.import-preview { border:1px solid var(--color-border); border-radius:var(--radius-lg); overflow:hidden; }
+.import-summary { display:flex; gap:24px; padding:16px; background:rgba(0,0,0,0.02); }
+.import-stat { text-align:center; }
+.import-stat-num { font-size:20px; font-weight:700; }
+.import-stat-label { font-size:11px; color:var(--color-text-muted); }
+.import-stat-add .import-stat-num { color:var(--color-success); }
+.import-stat-update .import-stat-num { color:var(--color-warning); }
+.import-stat-delete .import-stat-num { color:var(--color-danger); }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.show { display:flex; }
+.modal { background:#fff; border-radius:var(--radius-xl); width:600px; max-height:85vh; overflow-y:auto; box-shadow:0 12px 48px rgba(0,0,0,0.12); }
+.modal-header { padding:20px 24px 16px; border-bottom:1px solid var(--color-border); display:flex; align-items:center; justify-content:space-between; }
+.modal-title { font-size:16px; font-weight:700; }
+.modal-close { width:28px; height:28px; border:none; background:transparent; cursor:pointer; font-size:18px; color:var(--color-text-muted); border-radius:var(--radius-md); }
+.modal-close:hover { background:rgba(0,0,0,0.04); }
+.modal-body { padding:20px 24px; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--color-border); display:flex; justify-content:flex-end; gap:8px; }
+
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+.form-input, .form-select { width:100%; height:36px; padding:0 12px; border:1px solid var(--color-border); border-radius:var(--radius-md); font-size:13px; outline:none; }
+.form-input:focus { border-color:var(--color-primary); box-shadow:0 0 0 2px rgba(39,111,245,0.1); }
+.form-hint { font-size:11px; color:var(--color-text-muted); margin-top:4px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+/* Radio group */
+.radio-group { display:flex; gap:12px; }
+.radio-option { display:flex; align-items:center; gap:6px; padding:8px 16px; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; font-size:13px; transition:all .15s; }
+.radio-option:hover { border-color:rgba(39,111,245,0.3); }
+.radio-option.selected { border-color:var(--color-primary); background:rgba(39,111,245,0.04); color:var(--color-primary); font-weight:600; }
+.radio-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--color-border); }
+.radio-option.selected .radio-dot { border-color:var(--color-primary); background:var(--color-primary); box-shadow:inset 0 0 0 3px #fff; }
+</style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-title">KDManage</div>
+    <nav class="sidebar-nav">
+      <a href="#">大模型系数管理</a>
+      <a href="#">计费公式管理</a>
+      <a href="#" class="active">运营管理</a>
+      <a href="#">许可管理</a>
+      <a href="#">灵基集群</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>计量计费运营管理</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="showModal('importModal')">导入配置</button>
+        <button class="btn btn-secondary" onclick="alert('导出当前全部配置为CSV/JSON')">导出配置</button>
+        <button class="btn btn-primary" onclick="showModal('syncModal')">跨环境同步</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'scheduled')">定时生效</div>
+      <div class="tab" onclick="switchTab(this,'batch')">批量操作</div>
+      <div class="tab" onclick="switchTab(this,'history')">变更历史</div>
+    </div>
+
+    <div class="content-area">
+      <!-- Tab: 定时生效 -->
+      <div id="tab-scheduled">
+        <div class="ops-card">
+          <div class="ops-card-title">待生效配置</div>
+          <div class="scheduled-list">
+            <div class="scheduled-item">
+              <div class="scheduled-info">
+                <div class="scheduled-model">DeepSeek-V4-Flash · peak</div>
+                <div class="scheduled-desc">新增峰时配置：文本输入 2.00 / 文本输出 4.00 / 缓存命中 0.04</div>
+              </div>
+              <span class="scheduled-time">⏰ 2026-07-15 00:00 生效</span>
+              <div class="scheduled-actions">
+                <button class="btn btn-sm btn-text">查看详情</button>
+                <button class="btn btn-sm btn-secondary" onclick="confirm('确定取消该定时生效？')">取消</button>
+              </div>
+            </div>
+            <div class="scheduled-item">
+              <div class="scheduled-info">
+                <div class="scheduled-model">DeepSeek-V4-Pro · peak</div>
+                <div class="scheduled-desc">新增峰时配置：文本输入 6.00 / 文本输出 12.00 / 缓存命中 0.05</div>
+              </div>
+              <span class="scheduled-time">⏰ 2026-07-15 00:00 生效</span>
+              <div class="scheduled-actions">
+                <button class="btn btn-sm btn-text">查看详情</button>
+                <button class="btn btn-sm btn-secondary" onclick="confirm('确定取消？')">取消</button>
+              </div>
+            </div>
+            <div class="scheduled-item">
+              <div class="scheduled-info">
+                <div class="scheduled-model">DeepSeek-V4-Flash · standard</div>
+                <div class="scheduled-desc">修改现有配置：添加时段标识=standard，时段规则=00:00-09:00,12:00-14:00,18:00-24:00</div>
+              </div>
+              <span class="scheduled-time">⏰ 2026-07-15 00:00 生效</span>
+              <div class="scheduled-actions">
+                <button class="btn btn-sm btn-text">查看详情</button>
+                <button class="btn btn-sm btn-secondary" onclick="confirm('确定取消？')">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ops-card">
+          <div class="ops-card-title">已生效历史</div>
+          <div class="scheduled-list">
+            <div class="scheduled-item" style="opacity:0.7">
+              <div class="scheduled-info">
+                <div class="scheduled-model">Claude Sonnet 5</div>
+                <div class="scheduled-desc">限时促销到期，恢复标准价：输入 2.00→3.00 / 输出 10.00→15.00</div>
+              </div>
+              <span style="font-size:12px;color:var(--color-success);font-weight:600">✓ 2026-09-01 已生效</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: 批量操作 -->
+      <div id="tab-batch" style="display:none">
+        <div class="batch-bar">
+          <span class="batch-count">已选中 4 条配置</span>
+          <span class="batch-divider"></span>
+          <button class="btn btn-sm btn-warning" onclick="showModal('batchModal')">倍率调整</button>
+          <button class="btn btn-sm btn-secondary">统一设值</button>
+          <button class="btn btn-sm btn-secondary">批量启用</button>
+          <button class="btn btn-sm btn-secondary">批量停用</button>
+          <button class="btn btn-sm btn-text" style="margin-left:auto">取消选择</button>
+        </div>
+
+        <div class="ops-card">
+          <div class="ops-card-title">选择配置进行批量操作</div>
+          <p style="color:var(--color-text-muted);font-size:13px;margin-bottom:16px">从"大模型系数管理"或"计费公式管理"页面选中多条配置后，进入此页面进行批量操作。</p>
+          <table class="diff-table">
+            <tr><th>☑</th><th>模型</th><th>版本</th><th>文本输入</th><th>文本输出</th><th>缓存命中</th></tr>
+            <tr><td>☑</td><td>deepseek-v4-flash</td><td>CHAT/standard</td><td>1.00</td><td>2.00</td><td>0.02</td></tr>
+            <tr><td>☑</td><td>deepseek-v4-flash</td><td>CHAT/peak</td><td>2.00</td><td>4.00</td><td>0.04</td></tr>
+            <tr><td>☑</td><td>deepseek-v4-pro</td><td>CHAT/standard</td><td>3.00</td><td>6.00</td><td>0.025</td></tr>
+            <tr><td>☑</td><td>deepseek-v4-pro</td><td>CHAT/peak</td><td>6.00</td><td>12.00</td><td>0.05</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: 变更历史 -->
+      <div id="tab-history" style="display:none">
+        <div class="ops-card">
+          <div class="ops-card-title">最近变更记录</div>
+          <div class="history-item">
+            <div class="history-dot"></div>
+            <div class="history-content">
+              <div class="history-title">批量新增 DeepSeek 峰时配置（2条）</div>
+              <div class="history-meta">操作人：邹茂桃 · 2026-07-06 14:30 · 定时生效：2026-07-15 00:00</div>
+              <div class="history-diff">
+                + deepseek-v4-flash / CHAT / peak: 输入=2.00, 输出=4.00<br>
+                + deepseek-v4-pro / CHAT / peak: 输入=6.00, 输出=12.00
+              </div>
+            </div>
+          </div>
+          <div class="history-item">
+            <div class="history-dot" style="background:var(--color-warning)"></div>
+            <div class="history-content">
+              <div class="history-title">修改 Claude Opus 4.8 系数</div>
+              <div class="history-meta">操作人：邹茂桃 · 2026-07-03 10:15 · 立即生效</div>
+              <div class="history-diff">
+                <span class="diff-old">缓存写入: 5.00</span> → <span class="diff-new">缓存写入: 6.25</span>
+              </div>
+            </div>
+          </div>
+          <div class="history-item">
+            <div class="history-dot" style="background:var(--color-success)"></div>
+            <div class="history-content">
+              <div class="history-title">跨环境同步：测试→生产（8条）</div>
+              <div class="history-meta">操作人：邹茂桃 · 2026-07-01 16:00</div>
+            </div>
+          </div>
+          <div class="history-item">
+            <div class="history-dot"></div>
+            <div class="history-content">
+              <div class="history-title">导入配置（新增5条，更新3条）</div>
+              <div class="history-meta">操作人：邹茂桃 · 2026-06-28 09:30 · 来源：config_202206.csv</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">导入配置</div>
+      <button class="modal-close" onclick="hideModal('importModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">选择文件</label>
+        <div style="border:2px dashed rgba(39,111,245,0.3);border-radius:var(--radius-lg);padding:32px;text-align:center;cursor:pointer;background:rgba(39,111,245,0.02)">
+          <div style="font-size:24px;margin-bottom:8px">📄</div>
+          <div style="font-size:13px;color:var(--color-text-secondary)">点击或拖拽上传 CSV / JSON 文件</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">导入模式</label>
+        <div class="radio-group">
+          <div class="radio-option selected" onclick="selectRadio(this)"><div class="radio-dot"></div>覆盖更新</div>
+          <div class="radio-option" onclick="selectRadio(this)"><div class="radio-dot"></div>仅新增</div>
+          <div class="radio-option" onclick="selectRadio(this)"><div class="radio-dot"></div>全量替换</div>
+        </div>
+        <div class="form-hint">覆盖：按唯一键匹配，存在则更新；仅新增：只导入新的；全量替换：清空后重新导入</div>
+      </div>
+      <div class="import-preview">
+        <div class="import-summary">
+          <div class="import-stat import-stat-add"><div class="import-stat-num">5</div><div class="import-stat-label">新增</div></div>
+          <div class="import-stat import-stat-update"><div class="import-stat-num">3</div><div class="import-stat-label">更新</div></div>
+          <div class="import-stat import-stat-delete"><div class="import-stat-num">0</div><div class="import-stat-label">删除</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('importModal')">取消</button>
+      <button class="btn btn-primary" onclick="hideModal('importModal');alert('导入成功：新增5条，更新3条')">确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch Adjust Modal -->
+<div class="modal-overlay" id="batchModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">批量倍率调整</div>
+      <button class="modal-close" onclick="hideModal('batchModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">影响范围</label>
+        <div style="padding:10px 14px;background:rgba(39,111,245,0.04);border-radius:var(--radius-md);font-size:13px;font-weight:600;color:var(--color-primary)">4 条配置</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">调整倍率</label>
+          <input type="number" class="form-input" value="2.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">生效方式</label>
+          <select class="form-select">
+            <option>立即生效</option>
+            <option>定时生效</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">适用字段</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" checked> 文本输入</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" checked> 文本输出</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" checked> 缓存命中</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox"> 缓存写入</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox"> 推理输出</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">预览结果</label>
+        <table class="diff-table" style="border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden">
+          <tr><th>模型</th><th>字段</th><th>当前值</th><th>调整后</th></tr>
+          <tr class="diff-change"><td>deepseek-v4-flash</td><td>文本输入</td><td><span class="diff-old">1.00</span></td><td><span class="diff-new">2.00</span></td></tr>
+          <tr class="diff-change"><td>deepseek-v4-flash</td><td>文本输出</td><td><span class="diff-old">2.00</span></td><td><span class="diff-new">4.00</span></td></tr>
+          <tr class="diff-change"><td>deepseek-v4-pro</td><td>文本输入</td><td><span class="diff-old">3.00</span></td><td><span class="diff-new">6.00</span></td></tr>
+          <tr class="diff-change"><td>deepseek-v4-pro</td><td>文本输出</td><td><span class="diff-old">6.00</span></td><td><span class="diff-new">12.00</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('batchModal')">取消</button>
+      <button class="btn btn-primary" onclick="hideModal('batchModal');alert('批量调整成功')">确认调整</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Modal -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">跨环境同步</div>
+      <button class="modal-close" onclick="hideModal('syncModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="env-select">
+        <div class="env-box selected">
+          <div class="env-box-name">测试环境</div>
+          <div class="env-box-desc">13条配置</div>
+        </div>
+        <span class="env-arrow">→</span>
+        <div class="env-box selected">
+          <div class="env-box-name">生产环境</div>
+          <div class="env-box-desc">11条配置</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">差异预览</label>
+        <table class="diff-table" style="border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden">
+          <tr><th>状态</th><th>模型</th><th>说明</th></tr>
+          <tr class="diff-add"><td><span class="diff-badge badge-add">新增</span></td><td>minimax-m3 / ≤512K</td><td>测试有，生产无</td></tr>
+          <tr class="diff-add"><td><span class="diff-badge badge-add">新增</span></td><td>minimax-m3 / >512K</td><td>测试有，生产无</td></tr>
+          <tr class="diff-change"><td><span class="diff-badge badge-change">变更</span></td><td>deepseek-v4-pro / peak</td><td>输入 3.00→6.00</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="hideModal('syncModal')">取消</button>
+      <button class="btn btn-primary" onclick="hideModal('syncModal');alert('同步成功：新增2条，更新1条')">确认同步</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(el, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('[id^="tab-"]').forEach(p => p.style.display = 'none');
+  document.getElementById('tab-' + id).style.display = 'block';
+}
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+function selectRadio(el) {
+  el.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>
