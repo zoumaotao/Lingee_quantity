@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵基计量计费系统 - 产品规划</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f1f5f9;color:#1e293b;font-size:13px}
+.hd{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 32px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.hd h1{font-size:17px;font-weight:700}
+.tabs{display:flex;gap:2px;background:#e2e8f0;border-radius:8px;padding:3px}
+.tab{padding:7px 18px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;border-radius:6px;transition:all .12s}
+.tab:hover{color:#334155}
+.tab.on{background:#fff;color:#1e40af;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.wrap{max-width:1280px;margin:24px auto;padding:0 24px}
+.panel{display:none}.panel.on{display:block}
+.legend{display:flex;gap:16px;margin-bottom:16px;font-size:11px;color:#64748b}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.lg-done{background:#22c55e}.lg-doing{background:#3b82f6}.lg-plan{background:#a78bfa}
+
+/* === Architecture / Structure: Block Grid === */
+.layer{margin-bottom:12px;border-radius:10px;padding:14px;position:relative}
+.layer-label{position:absolute;top:-10px;left:16px;background:#fff;padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.layer-grid{display:flex;flex-wrap:wrap;gap:8px}
+.block{padding:9px 14px;border-radius:6px;font-size:12px;font-weight:500;min-width:120px;text-align:center;border:1px solid transparent}
+.block.done{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.block.doing{background:#dbeafe;color:#1e40af;border-color:#bfdbfe}
+.block.plan{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}
+.block sub{display:block;font-size:10px;font-weight:400;margin-top:2px;opacity:.7}
+
+.l-top{background:rgba(37,99,235,.04);border:1.5px solid rgba(37,99,235,.2)}
+.l-top .layer-label{color:#1e40af}
+.l-mid{background:rgba(5,150,105,.04);border:1.5px solid rgba(5,150,105,.2)}
+.l-mid .layer-label{color:#047857}
+.l-eng{background:rgba(217,119,6,.04);border:1.5px solid rgba(217,119,6,.2)}
+.l-eng .layer-label{color:#b45309}
+.l-data{background:rgba(124,58,237,.04);border:1.5px solid rgba(124,58,237,.2)}
+.l-data .layer-label{color:#6d28d9}
+.l-ext{background:rgba(220,38,38,.04);border:1.5px solid rgba(220,38,38,.2)}
+.l-ext .layer-label{color:#b91c1c}
+.l-side{background:rgba(100,116,139,.04);border:1.5px solid rgba(100,116,139,.2)}
+.l-side .layer-label{color:#475569}
+
+/* Connector arrow between layers */
+.arrow{text-align:center;color:#94a3b8;font-size:11px;margin:4px 0;font-weight:600}
+
+/* === Roadmap === */
+.road{display:flex;flex-direction:column;gap:0}
+.road-phase{display:flex;gap:0;border-bottom:1px solid #e2e8f0}
+.road-time{width:120px;padding:14px 16px;background:#f8fafc;font-size:12px;font-weight:700;color:#334155;border-right:1px solid #e2e8f0;flex-shrink:0;display:flex;flex-direction:column;justify-content:center}
+.road-time small{font-weight:400;color:#94a3b8;margin-top:2px}
+.road-items{flex:1;padding:12px 16px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.road-item{padding:5px 12px;border-radius:5px;font-size:11px;font-weight:500}
+.road-item.done{background:#dcfce7;color:#166534}
+.road-item.doing{background:#dbeafe;color:#1e40af}
+.road-item.plan{background:#ede9fe;color:#5b21b6}
+
+/* === Flow === */
+.flow-section{margin-bottom:32px}
+.flow-title{font-size:14px;font-weight:700;margin-bottom:12px;color:#0f172a}
+.flow{display:flex;flex-direction:column;gap:4px}
+.fs{display:flex;align-items:center;gap:10px}
+.fn{width:24px;height:24px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fb{flex:1;padding:8px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:12px}
+.fb b{color:#0f172a}
+.fb .s{color:#64748b;font-size:11px}
+.fa{margin-left:12px;color:#cbd5e1;font-size:12px}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>灵基计量计费系统 · 产品规划</h1>
+  <div class="tabs">
+    <div class="tab on" onclick="sw(0)">产品架构</div>
+    <div class="tab" onclick="sw(1)">产品结构</div>
+    <div class="tab" onclick="sw(2)">核心流程</div>
+    <div class="tab" onclick="sw(3)">产品路线图</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ TAB 0: 产品架构图 ============ -->
+<div class="panel on" id="p0">
+<div class="legend"><span><i class="lg-done"></i>已完成</span><span><i class="lg-doing"></i>建设中</span><span><i class="lg-plan"></i>规划中</span></div>
+
+<div class="layer l-top">
+  <div class="layer-label">运营管理层</div>
+  <div class="layer-grid">
+    <div class="block doing">大模型系数管理<sub>12维模态·分段·峰谷</sub></div>
+    <div class="block doing">非LLM公式管理<sub>6模板·阶梯·按次/时长/数量</sub></div>
+    <div class="block doing">运营工具<sub>定时生效·批量·跨环境·版本</sub></div>
+    <div class="block plan">定价策略<sub>毛利保障·套餐·折扣</sub></div>
+    <div class="block plan">预警规则配置<sub>阈值·通知方式·降级策略</sub></div>
+  </div>
+</div>
+<div class="arrow">↓ 推送配置</div>
+
+<div class="layer l-eng">
+  <div class="layer-label">计量计费引擎</div>
+  <div class="layer-grid">
+    <div class="block done">Token→点数计算</div>
+    <div class="block doing">公式→点数计算</div>
+    <div class="block done">扣点执行<sub>席位→共享池→透支</sub></div>
+    <div class="block done">流水记录<sub>按月分表·不可逆</sub></div>
+    <div class="block done">配额检查<sub>Redis两层缓存</sub></div>
+    <div class="block done">席位清零/过期</div>
+    <div class="block plan">预警触发&通知</div>
+    <div class="block plan">豁免区管理</div>
+    <div class="block plan">降级策略执行</div>
+  </div>
+</div>
+<div class="arrow">↑ 计量数据上报 ↑</div>
+
+<div class="layer l-data">
+  <div class="layer-label">数据接入层</div>
+  <div class="layer-grid">
+    <div class="block done">MAAS定时推送<sub>LLM Token + WebSearch</sub></div>
+    <div class="block doing">Console计量接口<sub>委托授权模式</sub></div>
+    <div class="block plan">Pull定时拉取<sub>存储/按周期服务</sub></div>
+  </div>
+</div>
+<div class="arrow">↓ 调用外部服务</div>
+
+<div class="layer l-ext">
+  <div class="layer-label">外部服务</div>
+  <div class="layer-grid">
+    <div class="block done">大模型<sub>DeepSeek/智谱/Qwen/Kimi/Claude/Gemini/Doubao/MiniMax</sub></div>
+    <div class="block doing">WebSearch</div>
+    <div class="block doing">OCR</div>
+    <div class="block doing">图像生成</div>
+    <div class="block doing">语音识别/合成</div>
+    <div class="block plan">视频生成</div>
+    <div class="block doing">文档处理</div>
+    <div class="block doing">工具调用(MCP)</div>
+    <div class="block plan">翻译·审核</div>
+  </div>
+</div>
+<div class="arrow">↓ 数据沉淀</div>
+
+<div class="layer l-side">
+  <div class="layer-label">分析·对账·客户</div>
+  <div class="layer-grid">
+    <div class="block plan">多维分析<sub>租户/用户/Agent/Skill/服务/厂商/时间/部门</sub></div>
+    <div class="block plan">客户账单<sub>生成·查询·下载</sub></div>
+    <div class="block plan">业务对账</div>
+    <div class="block plan">客户对账</div>
+    <div class="block plan">厂商对账</div>
+    <div class="block plan">成本核算<sub>毛利监控</sub></div>
+    <div class="block plan">报价器<sub>模拟·预估·推荐</sub></div>
+    <div class="block done">仪表板(基础)<sub>席位/资源池/消耗</sub></div>
+    <div class="block plan">仪表板(增强)<sub>按服务/部门/智能体</sub></div>
+  </div>
+</div>
+</div>
+
+<!-- ============ TAB 1: 产品结构图 ============ -->
+<div class="panel" id="p1">
+<div class="legend"><span><i class="lg-done"></i>已完成</span><span><i class="lg-doing"></i>建设中</span><span><i class="lg-plan"></i>规划中</span></div>
+
+<!-- 一、计费规则配置 -->
+<div class="layer l-top" style="margin-bottom:16px">
+  <div class="layer-label">一、计费规则配置</div>
+  <div class="layer-grid">
+    <div class="block doing">大模型系数管理<sub>模型标识·12维模态系数·分段·峰谷·向导创建·试算</sub></div>
+    <div class="block doing">非LLM公式管理<sub>供应商·服务标识·输出规格·T1~T6模板·阶梯(周期/累计)·试算</sub></div>
+    <div class="block plan">定价策略管理<sub>点数单价·成本覆盖率·套餐定价·优惠折扣</sub></div>
+  </div>
+</div>
+
+<!-- 二、计量引擎 -->
+<div class="layer l-eng" style="margin-bottom:16px">
+  <div class="layer-label">二、计量引擎</div>
+  <div class="layer-grid">
+    <div class="block done">数据采集<sub>MAAS拉取·Console接口·幂等·窗口管理</sub></div>
+    <div class="block done">点数计算<sub>Token×系数·公式计算·匹配·降级兜底</sub></div>
+    <div class="block done">扣点执行<sub>席位→共享池→透支·流水·Redis刷新</sub></div>
+    <div class="block done">配额管理<sub>余额检查·熔断·席位清零·过期结算·跨环境转移</sub></div>
+  </div>
+</div>
+
+<!-- 三、风控与保障 -->
+<div class="layer l-mid" style="margin-bottom:16px">
+  <div class="layer-label">三、风控与保障</div>
+  <div class="layer-grid">
+    <div class="block done">基础熔断<sub>余额≤0拒绝调用</sub></div>
+    <div class="block plan">三级预警<sub>80%黄色·100%橙色·120%红色·通知</sub></div>
+    <div class="block plan">豁免区<sub>100%~120%不中断·欠点·充值扣除</sub></div>
+    <div class="block plan">降级策略<sub>限流·按优先级降级·通知</sub></div>
+  </div>
+</div>
+
+<!-- 四、运营管理 -->
+<div class="layer l-top" style="margin-bottom:16px;border-color:rgba(14,165,233,.2);background:rgba(14,165,233,.03)">
+  <div class="layer-label" style="color:#0369a1">四、运营管理</div>
+  <div class="layer-grid">
+    <div class="block doing">定时生效<sub>提前配好·到时切换</sub></div>
+    <div class="block doing">批量调整<sub>倍率·统一设值·批量启停</sub></div>
+    <div class="block doing">导入导出<sub>CSV/JSON</sub></div>
+    <div class="block doing">跨环境迁移<sub>测试→生产·差异预览</sub></div>
+    <div class="block doing">版本历史<sub>每次变更新版本·回滚</sub></div>
+    <div class="block doing">模板复制</div>
+    <div class="block doing">变更对比</div>
+    <div class="block plan">厂商调价巡检<sub>定时抓取·告警</sub></div>
+    <div class="block plan">厂商合同管理</div>
+  </div>
+</div>
+
+<!-- 五、分析与统计 -->
+<div class="layer l-data" style="margin-bottom:16px">
+  <div class="layer-label">五、分析与统计</div>
+  <div class="layer-grid">
+    <div class="block plan">按租户分析</div>
+    <div class="block plan">按用户分析</div>
+    <div class="block plan">按Agent分析</div>
+    <div class="block plan">按Skill分析</div>
+    <div class="block plan">按服务类型分析</div>
+    <div class="block plan">按厂商分析</div>
+    <div class="block plan">按模型分析</div>
+    <div class="block plan">按时间分析<sub>日/周/月·同比环比</sub></div>
+    <div class="block plan">按产品模块分析<sub>Chat/Work/Build</sub></div>
+    <div class="block plan">按部门分析</div>
+    <div class="block plan">按场景分析</div>
+    <div class="block done">仪表板(基础)<sub>席位·资源池·今日消耗·成员管理</sub></div>
+    <div class="block plan">仪表板(增强)</div>
+  </div>
+</div>
+
+<!-- 六、账单与对账 -->
+<div class="layer l-ext" style="margin-bottom:16px">
+  <div class="layer-label">六、账单与对账</div>
+  <div class="layer-grid">
+    <div class="block plan">客户账单<sub>月度/季度·席位费+点数·归因明细</sub></div>
+    <div class="block plan">与业务对账<sub>计量vs调用记录·差异识别</sub></div>
+    <div class="block plan">与客户对账<sub>账单vs计量·争议处理·调账</sub></div>
+    <div class="block plan">与厂商对账<sub>计量vs厂商账单·导入比对·差异告警</sub></div>
+    <div class="block plan">成本核算<sub>各服务成本·收入vs成本·毛利率</sub></div>
+    <div class="block plan">报价器<sub>用量模拟·成本预估·套餐推荐</sub></div>
+  </div>
+</div>
+
+<!-- 七、客户侧 -->
+<div class="layer l-side">
+  <div class="layer-label">七、客户侧能力</div>
+  <div class="layer-grid">
+    <div class="block plan">余额查询</div>
+    <div class="block plan">用量明细</div>
+    <div class="block plan">账单下载</div>
+    <div class="block plan">预警自定义</div>
+    <div class="block plan">充值/续购入口</div>
+    <div class="block done">成员配额管理<sub>分配·编辑·移除·批量</sub></div>
+    <div class="block done">沙箱额度分配</div>
+  </div>
+</div>
+</div>
+
+<!-- ============ TAB 2: 核心流程 ============ -->
+<div class="panel" id="p2">
+
+<div class="flow-section">
+<div class="flow-title">流程一：一次调用的计量→计费→扣点</div>
+<div class="flow">
+  <div class="fs"><div class="fn" style="background:#2563eb">1</div><div class="fb"><b>配额检查</b><div class="s">查Redis（租户+用户），有余额→放行，无余额→熔断</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#059669">2</div><div class="fb"><b>调用外部服务</b><div class="s">MAAS（大模型）/ Console接口（非LLM，委托授权转发）</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#d97706">3</div><div class="fb"><b>记录计量</b><div class="s">写计量表：Token数/次数/时长 + 模型/服务标识 + agent/skill + requestId</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#7c3aed">4</div><div class="fb"><b>计算点数</b><div class="s">Token类：模态Token×系数÷基数 | 非Token类：按公式模板计算</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#dc2626">5</div><div class="fb"><b>扣点+流水</b><div class="s">先扣席位→再扣共享池→透支 | 写不可逆流水 | 刷新Redis</div></div></div>
+</div>
+</div>
+
+<div class="flow-section">
+<div class="flow-title">流程二：配置变更生效</div>
+<div class="flow">
+  <div class="fs"><div class="fn" style="background:#2563eb">1</div><div class="fb"><b>配置</b><div class="s">运营人员创建/编辑系数或公式，选生效方式（立即/定时）</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#059669">2</div><div class="fb"><b>确认</b><div class="s">变更对比 → 保存新版本（旧版本永久保留）</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#d97706">3</div><div class="fb"><b>推送</b><div class="s">推送到各tmanage集群，刷新内存缓存</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#7c3aed">4</div><div class="fb"><b>生效</b><div class="s">立即：推送后即刻使用 | 定时：到达时间自动切换</div></div></div>
+</div>
+</div>
+
+<div class="flow-section">
+<div class="flow-title">流程三：预警→豁免→熔断→恢复</div>
+<div class="flow">
+  <div class="fs"><div class="fn" style="background:#eab308">1</div><div class="fb"><b>黄色预警 80%</b><div class="s">发送通知，服务不中断</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#f97316">2</div><div class="fb"><b>豁免区 100%~120%</b><div class="s">服务继续，记录欠点，通知升级</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#dc2626">3</div><div class="fb"><b>熔断 >120%</b><div class="s">拒绝所有调用</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#059669">4</div><div class="fb"><b>充值恢复</b><div class="s">充值→扣除欠点→服务恢复</div></div></div>
+</div>
+</div>
+
+<div class="flow-section">
+<div class="flow-title">流程四：厂商调价响应</div>
+<div class="flow">
+  <div class="fs"><div class="fn" style="background:#2563eb">1</div><div class="fb"><b>发现调价</b><div class="s">人工监控 / 巡检告警</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#059669">2</div><div class="fb"><b>配置新值</b><div class="s">计算新系数 → 配置 → 设定时生效</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#d97706">3</div><div class="fb"><b>验证</b><div class="s">测试环境试算 → 跨环境迁移到生产</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#7c3aed">4</div><div class="fb"><b>自动切换</b><div class="s">到时激活新配置 → 记录版本变更</div></div></div>
+</div>
+</div>
+
+<div class="flow-section">
+<div class="flow-title">流程五：对账</div>
+<div class="flow">
+  <div class="fs"><div class="fn" style="background:#2563eb">1</div><div class="fb"><b>数据汇总</b><div class="s">按月汇总计量+流水+配额</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#059669">2</div><div class="fb"><b>三方比对</b><div class="s">我们的计量 vs 业务方 vs 厂商账单</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#d97706">3</div><div class="fb"><b>差异处理</b><div class="s">识别差异 → 追溯原因 → 调账/修正</div></div></div>
+  <div class="fa">↓</div>
+  <div class="fs"><div class="fn" style="background:#7c3aed">4</div><div class="fb"><b>生成账单</b><div class="s">确认无误 → 生成客户账单</div></div></div>
+</div>
+</div>
+</div>
+
+<!-- ============ TAB 3: 产品路线图 ============ -->
+<div class="panel" id="p3">
+<div class="legend"><span><i class="lg-done"></i>已完成</span><span><i class="lg-doing"></i>建设中</span><span><i class="lg-plan"></i>规划中</span></div>
+
+<div class="road" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;background:#fff">
+<div class="road-phase">
+  <div class="road-time">已完成<small>2026.05~06</small></div>
+  <div class="road-items">
+    <div class="road-item done">LLM Token计量计费</div>
+    <div class="road-item done">扣点逻辑</div>
+    <div class="road-item done">流水记录</div>
+    <div class="road-item done">配额检查&熔断</div>
+    <div class="road-item done">席位清零/过期</div>
+    <div class="road-item done">系数管理+推送</div>
+    <div class="road-item done">跨环境转移</div>
+    <div class="road-item done">计量仪表板</div>
+    <div class="road-item done">成员配额管理</div>
+  </div>
+</div>
+<div class="road-phase">
+  <div class="road-time">本轮<small>2026.07.09~07.23</small></div>
+  <div class="road-items">
+    <div class="road-item doing">多模态Token系数(12维)</div>
+    <div class="road-item doing">上下文分段/峰谷</div>
+    <div class="road-item doing">非LLM公式引擎</div>
+    <div class="road-item doing">阶梯计费(周期+累计)</div>
+    <div class="road-item doing">全部外部服务接入</div>
+    <div class="road-item doing">运营管理工具</div>
+    <div class="road-item doing">即时试算</div>
+    <div class="road-item doing">版本历史</div>
+  </div>
+</div>
+<div class="road-phase">
+  <div class="road-time">下一阶段<small>2026.08~09</small></div>
+  <div class="road-items">
+    <div class="road-item plan">三级预警+通知</div>
+    <div class="road-item plan">豁免区管理</div>
+    <div class="road-item plan">降级策略</div>
+    <div class="road-item plan">客户账单生成</div>
+    <div class="road-item plan">与厂商对账</div>
+    <div class="road-item plan">仪表板增强</div>
+    <div class="road-item plan">厂商调价巡检</div>
+  </div>
+</div>
+<div class="road-phase">
+  <div class="road-time">远期<small>2026.Q4+</small></div>
+  <div class="road-items">
+    <div class="road-item plan">报价器</div>
+    <div class="road-item plan">定价策略管理</div>
+    <div class="road-item plan">成本核算</div>
+    <div class="road-item plan">多维分析</div>
+    <div class="road-item plan">客户自助</div>
+    <div class="road-item plan">统一网关</div>
+    <div class="road-item plan">OLAP优化</div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+<script>
+function sw(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',j===i));}
+</script>
+</body>
+</html>

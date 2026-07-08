@@ -89,17 +89,17 @@
 <script>
 // === DATA ===
 const D=[
-{id:'glm-5.1',ver:'CHAT',name:'GLM-5.1',type:'智谱',segs:[],times:[],rows:[{ti:1.0,to:3.6,ch:0.25}]},
-{id:'deepseek-v4-pro',ver:'CHAT',name:'DeepSeek-V4-Pro',type:'DeepSeek',segs:[],times:[{n:'谷时',r:'00:00-09:00,12:00-14:00,18:00-24:00'},{n:'峰时',r:'09:00-12:00,14:00-18:00'}],tz:'Asia/Shanghai',rows:[{time:'谷时',ti:3.0,to:6.0,ch:0.025},{time:'峰时',ti:6.0,to:12.0,ch:0.05}]},
-{id:'deepseek-v4-flash',ver:'CHAT',name:'DeepSeek-V4-Flash',type:'DeepSeek',segs:[],times:[{n:'谷时',r:'00:00-09:00,12:00-14:00,18:00-24:00'},{n:'峰时',r:'09:00-12:00,14:00-18:00'}],tz:'Asia/Shanghai',rows:[{time:'谷时',ti:1.0,to:2.0,ch:0.02},{time:'峰时',ti:2.0,to:4.0,ch:0.04}]},
-{id:'kimi-k2.6',ver:'CHAT',name:'Kimi-K2.6',type:'Moonshot',segs:[],times:[],rows:[{ti:6.5,to:27.0,ch:1.1}]},
-{id:'qwen3.6-plus',ver:'CHAT',name:'Qwen3.6-Plus',type:'通义',segs:[262144],times:[],rows:[{seg:262144,ti:2.0,to:12.0,ch:0.2,cw:2.5},{ti:8.0,to:48.0,ch:0.8,cw:10.0}]},
-{id:'claude-opus-4.8',ver:'-',name:'Claude Opus 4.8',type:'Anthropic',segs:[],times:[],rows:[{ti:5.0,to:25.0,ch:0.5,cw:6.25}]},
-{id:'claude-sonnet-5',ver:'-',name:'Claude Sonnet 5',type:'Anthropic',segs:[],times:[],rows:[{ti:3.0,to:15.0,ch:0.2,cw:2.5}]},
-{id:'gemini-3.1-flash-live',ver:'-',name:'Gemini 3.1 Flash Live',type:'Google',segs:[],times:[],rows:[{ti:0.75,to:4.5,ii:1.0,vi:1.0,ai:3.0,ao:12.0}]},
-{id:'gemini-3.1-flash-image',ver:'-',name:'Gemini 3.1 Flash Image',type:'Google',segs:[],times:[],rows:[{ti:0.5,to:3.0,io:60.0}]},
-{id:'minimax-m3',ver:'CHAT',name:'MiniMax-M3',type:'MiniMax',segs:[524288],times:[],rows:[{seg:524288,ti:2.1,to:8.4,ch:0.42},{ti:4.2,to:16.8,ch:0.84}]},
-{id:'doubao-seed-2-0-pro',ver:'CHAT',name:'Doubao-Seed-2.0-Pro',type:'字节',segs:[],times:[],rows:[{ti:0.47,to:2.37}]},
+{id:'glm-5.1',name:'GLM-5.1',type:'智谱',segs:[],times:[],rows:[{ti:1.0,to:3.6,ch:0.25}]},
+{id:'deepseek-v4-pro',name:'DeepSeek-V4-Pro',type:'DeepSeek',segs:[],times:[{n:'谷时',r:'00:00-09:00,12:00-14:00,18:00-24:00'},{n:'峰时',r:'09:00-12:00,14:00-18:00'}],tz:'Asia/Shanghai',rows:[{time:'谷时',ti:3.0,to:6.0,ch:0.025},{time:'峰时',ti:6.0,to:12.0,ch:0.05}]},
+{id:'deepseek-v4-flash',name:'DeepSeek-V4-Flash',type:'DeepSeek',segs:[],times:[{n:'谷时',r:'00:00-09:00,12:00-14:00,18:00-24:00'},{n:'峰时',r:'09:00-12:00,14:00-18:00'}],tz:'Asia/Shanghai',rows:[{time:'谷时',ti:1.0,to:2.0,ch:0.02},{time:'峰时',ti:2.0,to:4.0,ch:0.04}]},
+{id:'kimi-k2.6',name:'Kimi-K2.6',type:'Moonshot',segs:[],times:[],rows:[{ti:6.5,to:27.0,ch:1.1}]},
+{id:'qwen3.6-plus',name:'Qwen3.6-Plus',type:'通义',segs:[262144],times:[],rows:[{seg:262144,ti:2.0,to:12.0,ch:0.2,cw:2.5},{ti:8.0,to:48.0,ch:0.8,cw:10.0}]},
+{id:'claude-opus-4.8',name:'Claude Opus 4.8',type:'Anthropic',segs:[],times:[],rows:[{ti:5.0,to:25.0,ch:0.5,cw:6.25}]},
+{id:'claude-sonnet-5',name:'Claude Sonnet 5',type:'Anthropic',segs:[],times:[],rows:[{ti:3.0,to:15.0,ch:0.2,cw:2.5}]},
+{id:'gemini-3.1-flash-live',name:'Gemini 3.1 Flash Live',type:'Google',segs:[],times:[],rows:[{ti:0.75,to:4.5,ii:1.0,vi:1.0,ai:3.0,ao:12.0}]},
+{id:'gemini-3.1-flash-image',name:'Gemini 3.1 Flash Image',type:'Google',segs:[],times:[],rows:[{ti:0.5,to:3.0,io:60.0}]},
+{id:'minimax-m3',name:'MiniMax-M3',type:'MiniMax',segs:[524288],times:[],rows:[{seg:524288,ti:2.1,to:8.4,ch:0.42},{ti:4.2,to:16.8,ch:0.84}]},
+{id:'doubao-seed-2-0-pro',name:'Doubao-Seed-2.0-Pro',type:'字节',segs:[],times:[],rows:[{ti:0.47,to:2.37}]},
 ];
 
 let cur=null;
@@ -117,7 +117,7 @@ function sel(id){
   const d=document.getElementById('det');d.style.display='block';
   let h=`<div class="RP-h"><div class="RP-t">${cur.name}</div><div style="display:flex;gap:6px;align-items:center"><label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;padding:4px 10px;border:1px solid var(--bd);border-radius:var(--r)"><input type="checkbox" checked onchange="msg(this.checked?'已启用':'已禁用')"> 启用</label><button class="b bsm bs" onclick="openWizardEdit()">编辑</button><button class="b bsm bd" onclick="doDel()">删除</button></div></div><div class="RP-b">`;
   // Info
-  h+=`<div class="sec"><div class="sec-h"><div class="sec-t">基本信息</div></div><div class="ig"><div><div class="il">模型ID</div><div class="iv mo">${cur.id}</div></div><div><div class="il">版本</div><div class="iv mo">${cur.ver}</div></div><div><div class="il">厂商</div><div class="iv">${cur.type}</div></div><div><div class="il">配置行数</div><div class="iv">${cur.rows.length}行</div></div></div></div>`;
+  h+=`<div class="sec"><div class="sec-h"><div class="sec-t">基本信息</div></div><div class="ig"><div><div class="il">模型标识</div><div class="iv mo">${cur.id}</div></div><div><div class="il">厂商</div><div class="iv">${cur.type}</div></div><div><div class="il">配置行数</div><div class="iv">${cur.rows.length}行</div></div></div></div>`;
   // Dimensions
   h+=`<div class="sec"><div class="sec-h"><div class="sec-t">规则维度</div></div><div class="ig">`;
   h+=`<div><div class="il">上下文分段</div><div class="iv">${cur.segs.length?cur.segs.map(s=>'≤'+fK(s)).join(' / ')+' / >'+fK(cur.segs[cur.segs.length-1]):'不分段'}</div></div>`;
@@ -183,7 +183,7 @@ function doDel(){if(confirm('确定删除「'+cur.name+'」？')){msg('已删除
 
 // === WIZARD ===
 let wStep=1,wData={};
-function openWizard(){wStep=1;wData={id:'',ver:'CHAT',name:'',type:'',segs:[],times:[],tz:'Asia/Shanghai'};document.getElementById('wTitle').textContent='创建模型系数';renderWizard();showM('wizardO');}
+function openWizard(){wStep=1;wData={id:'',name:'',type:'',segs:[],times:[],tz:'Asia/Shanghai'};document.getElementById('wTitle').textContent='创建模型系数';renderWizard();showM('wizardO');}
 function openWizardEdit(){wStep=2;wData={...cur,segs:[...cur.segs],times:cur.times.map(t=>({...t}))};document.getElementById('wTitle').textContent='编辑规则维度 - '+cur.name;renderWizard();showM('wizardO');}
 
 function renderWizard(){
@@ -195,7 +195,7 @@ function renderWizard(){
   if(wStep===1){
     c.innerHTML=`
 <div class="fg"><label class="fl">模型名称<span class="rq">*</span></label><input class="fi" id="w1name" value="${wData.name}" placeholder="如 GLM-5.1"></div>
-<div class="fr"><div class="fg"><label class="fl">模型ID<span class="rq">*</span></label><input class="fi" id="w1id" value="${wData.id}" placeholder="如 glm-5.1"></div><div class="fg"><label class="fl">模型版本</label><input class="fi" id="w1ver" value="${wData.ver}" placeholder="CHAT"></div></div>
+<div class="fg"><label class="fl">模型标识<span class="rq">*</span></label><input class="fi" id="w1id" value="${wData.id}" placeholder="如 glm-5.1（API调用时的model参数）"></div>
 <div class="fg"><label class="fl">厂商</label><select class="fs" id="w1type"><option value="">选择厂商</option><option ${wData.type==='智谱'?'selected':''}>智谱</option><option ${wData.type==='DeepSeek'?'selected':''}>DeepSeek</option><option ${wData.type==='Anthropic'?'selected':''}>Anthropic</option><option ${wData.type==='Google'?'selected':''}>Google</option><option ${wData.type==='通义'?'selected':''}>通义</option><option ${wData.type==='Moonshot'?'selected':''}>Moonshot</option><option ${wData.type==='MiniMax'?'selected':''}>MiniMax</option><option ${wData.type==='字节'?'selected':''}>字节</option></select></div>`;
     l.innerHTML='';
     r.innerHTML=`<button class="b bp" onclick="wNext()">下一步 →</button>`;
@@ -242,9 +242,8 @@ function wNext(){
   if(wStep===1){
     wData.name=document.getElementById('w1name').value;
     wData.id=document.getElementById('w1id').value;
-    wData.ver=document.getElementById('w1ver').value;
     wData.type=document.getElementById('w1type').value;
-    if(!wData.name||!wData.id){msg('请填写模型名称和ID');return;}
+    if(!wData.name||!wData.id){msg('请填写模型名称和标识');return;}
   }
   wStep++;renderWizard();
 }

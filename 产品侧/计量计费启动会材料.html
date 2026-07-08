@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵基-第三方服务统一计量 会议</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;font-size:14px;line-height:1.7;padding:32px}
+.page{max-width:900px;margin:0 auto}
+h1{font-size:24px;font-weight:800;text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:#64748b;font-size:13px;margin-bottom:32px}
+h2{font-size:17px;font-weight:700;color:#0f172a;margin:28px 0 12px;padding:8px 0;border-bottom:2px solid #2563eb}
+h3{font-size:14px;font-weight:700;color:#334155;margin:16px 0 8px}
+p{margin-bottom:10px;color:#475569}
+ul{padding-left:20px;margin-bottom:12px;color:#475569}
+li{margin-bottom:4px}
+strong{color:#0f172a}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin-bottom:12px}
+.agenda{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.agenda-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}
+.agenda-num{width:24px;height:24px;border-radius:50%;background:#2563eb;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.agenda-text{font-size:13px;flex:1}
+.agenda-who{font-size:12px;color:#2563eb;font-weight:600;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{background:#f1f5f9;color:#334155;padding:8px 12px;text-align:left;font-weight:600;border:1px solid #e2e8f0}
+td{padding:8px 12px;border:1px solid #e2e8f0;color:#475569}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.t-green{background:#dcfce7;color:#166534}
+.t-blue{background:#dbeafe;color:#1e40af}
+.t-orange{background:#fef3c7;color:#92400e}
+.t-red{background:#fee2e2;color:#991b1b}
+.highlight{background:#eff6ff;border-left:3px solid #2563eb;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px}
+.meta{text-align:center;color:#94a3b8;font-size:12px;margin-top:32px;padding-top:16px;border-top:1px solid #e2e8f0}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>灵基-第三方服务统一计量</h1>
+<div class="sub">启动会 · 2026.07.09 14:00 · 邹茂桃</div>
+
+<!-- 会议议程 -->
+<h2>会议议程</h2>
+<div class="agenda">
+  <div class="agenda-item"><div class="agenda-num">1</div><div class="agenda-text">灵基计量计费业务与现状介绍</div><div class="agenda-who">邹茂桃</div></div>
+  <div class="agenda-item"><div class="agenda-num">2</div><div class="agenda-text">灵基计量计费的工作安排</div><div class="agenda-who">邹茂桃</div></div>
+  <div class="agenda-item"><div class="agenda-num">3</div><div class="agenda-text">灵基计量计费的技术与协同方案</div><div class="agenda-who">黄明华</div></div>
+</div>
+
+<!-- 议程1：业务与现状 -->
+<h2>一、灵基计量计费业务与现状</h2>
+
+<h3>为什么要做</h3>
+<div class="card" style="background:#0f172a;color:#e2e8f0;border:none">
+  <ul style="color:#cbd5e1;font-size:15px;line-height:2.2">
+    <li><strong style="color:#fff">灵基产品定价模式</strong>：基础订阅 + AI点数</li>
+    <li><strong style="color:#fff">核心问题</strong>：所有第三方服务调用都有成本，需要精确转换为点数向客户计费</li>
+    <li><strong style="color:#fff">当前状态</strong>：<span style="color:#38bdf8;font-weight:700">只完成了LLM大模型的计量计费</span>，其他服务（WebSearch、OCR、图像、语音等）尚未接入</li>
+    <li><strong style="color:#fff">目标</strong>：覆盖所有付费外部服务，实现全链路计量→计费→扣点</li>
+  </ul>
+</div>
+
+<h3>核心流程</h3>
+<p style="color:#64748b;font-size:12px;margin-bottom:10px">一次调用从发起到扣点的完整链路</p>
+<div style="display:flex;flex-direction:column;gap:6px">
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;background:#2563eb;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div><div class="card" style="flex:1;margin:0;padding:10px 16px"><strong>余额检查</strong> — 查Redis缓存，确认租户/用户有剩余点数 <span style="color:#94a3b8">→ 无余额则熔断拒绝</span></div></div>
+  <div style="text-align:center;color:#cbd5e1;font-size:12px;margin-left:14px">↓</div>
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;background:#059669;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div><div class="card" style="flex:1;margin:0;padding:10px 16px"><strong>调用外部服务</strong> — 通过MAAS/Console转发调用第三方</div></div>
+  <div style="text-align:center;color:#cbd5e1;font-size:12px;margin-left:14px">↓</div>
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;background:#d97706;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div><div class="card" style="flex:1;margin:0;padding:10px 16px"><strong>记录计量</strong> — 记录消耗的原始数据（Token数 / 调用次数 / 时长等）</div></div>
+  <div style="text-align:center;color:#cbd5e1;font-size:12px;margin-left:14px">↓</div>
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;background:#7c3aed;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div><div class="card" style="flex:1;margin:0;padding:10px 16px"><strong>计算点数</strong> — 查系数/公式配置，计算应扣多少点</div></div>
+  <div style="text-align:center;color:#cbd5e1;font-size:12px;margin-left:14px">↓</div>
+  <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</div><div class="card" style="flex:1;margin:0;padding:10px 16px"><strong>扣点 + 记录流水</strong> — 先扣席位→再扣共享池 · 写入不可逆流水 · 刷新Redis缓存</div></div>
+</div>
+
+<h3>产品规划</h3>
+<p style="color:#64748b;font-size:12px;margin-bottom:10px">全局视角：已完成 → 正在做 → 后续规划</p>
+<div style="display:flex;gap:12px">
+  <div class="card" style="flex:1;border-color:#86efac">
+    <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:8px">✅ 已完成</p>
+    <ul style="font-size:12px;line-height:2;color:#475569;padding-left:16px">
+      <li>LLM Token计量计费</li>
+      <li>扣点逻辑（席位→共享池）</li>
+      <li>流水记录（按月分表）</li>
+      <li>配额检查与熔断</li>
+      <li>席位重置 / 配额过期</li>
+      <li>跨环境额度转移</li>
+      <li>计量仪表板</li>
+    </ul>
+  </div>
+  <div class="card" style="flex:1;border-color:#93c5fd">
+    <p style="font-size:13px;font-weight:700;color:#1e40af;margin-bottom:8px">🔜 正在做（本轮）</p>
+    <ul style="font-size:12px;line-height:2;color:#475569;padding-left:16px">
+      <li>多模态Token系数（12维）</li>
+      <li>上下文分段 / 峰谷时段</li>
+      <li>非LLM公式引擎（6种模板）</li>
+      <li>WebSearch / OCR / 图像 / 语音接入</li>
+      <li>运营管理（定时生效/批量/跨环境）</li>
+      <li>全部外部服务统一计量</li>
+    </ul>
+  </div>
+  <div class="card" style="flex:1;border-color:#c4b5fd">
+    <p style="font-size:13px;font-weight:700;color:#6b21a8;margin-bottom:8px">📋 后续规划</p>
+    <ul style="font-size:12px;line-height:2;color:#475569;padding-left:16px">
+      <li>三级预警机制</li>
+      <li>账单生成</li>
+      <li>报价器</li>
+      <li>跨环境统计分析</li>
+      <li>厂商调价巡检告警</li>
+      <li>统一网关架构</li>
+      <li>仪表板增强（按服务/部门/智能体）</li>
+    </ul>
+  </div>
+</div>
+
+<h3>覆盖哪些服务</h3>
+<div style="display:flex;gap:20px">
+  <div style="flex:1">
+    <p style="font-size:13px;font-weight:600;color:#334155;margin-bottom:8px">Token计费，比如</p>
+    <ul style="font-size:13px;line-height:2">
+      <li>大模型对话（GLM/DeepSeek/Qwen/Kimi/Claude/Gemini/Doubao...）</li>
+      <li>Embedding向量化</li>
+      <li>Rerank重排序</li>
+    </ul>
+  </div>
+  <div style="flex:1">
+    <p style="font-size:13px;font-weight:600;color:#334155;margin-bottom:8px">非Token计费，比如</p>
+    <ul style="font-size:13px;line-height:2">
+      <li>WebSearch 搜索</li>
+      <li>OCR 文字识别</li>
+      <li>Image Gen 图像生成</li>
+      <li>ASR 语音识别</li>
+      <li>TTS 语音合成</li>
+      <li>视频生成</li>
+      <li>文档处理 / WPS</li>
+      <li>工具调用（API等）</li>
+      <li>翻译 / 内容审核</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 议程2：工作安排 -->
+<h2>二、灵基计量计费的工作安排</h2>
+
+<h3>时间计划</h3>
+<table>
+  <tr><th>时间</th><th>事项</th><th>责任方</th></tr>
+  <tr><td><strong>7.09（今天）</strong></td><td>启动会 · 明确目标和分工</td><td>全体</td></tr>
+  <tr><td><strong>7.11上午</strong></td><td>各业务方填写完成《外部服务接入收集表》</td><td><span class="tag t-blue">各业务方</span></td></tr>
+  <tr><td>7.11下班前</td><td>信息整理 + 逐一对齐计费规则和接入方案</td><td>邹茂桃</td></tr>
+  <tr><td><strong>7.16（下周三）</strong></td><td>系统建设完成 + <span class="tag t-green">第一批接入完成</span></td><td>计量计费研发 + 第一批业务方</td></tr>
+  <tr><td><strong>7.23（再下周三）</strong></td><td><span class="tag t-green">第二批接入完成</span></td><td>第二批业务方</td></tr>
+</table>
+
+<h3>各方需要做的事</h3>
+<table>
+  <tr><th>角色</th><th>事项</th><th>截止</th></tr>
+  <tr><td><span class="tag t-blue">各业务方</span></td><td>填写《灵基-外部服务接入收集表》（Excel，两个Sheet：Token计费 + 非Token计费）</td><td><strong>本周五 7.11</strong></td></tr>
+  <tr><td><span class="tag t-blue">各业务方</span></td><td>确认负责人（开发+测试），配合完成计量数据上报对接</td><td>7.11确认人，7.16/7.23完成对接</td></tr>
+  <tr><td><span class="tag t-green">计量计费研发</span></td><td>完成计费引擎+配置管理系统建设</td><td>7.16</td></tr>
+  <tr><td><span class="tag t-orange">待定</span></td><td>收集信息整理、配置数据准备、逐一对齐、验收</td><td>持续</td></tr>
+</table>
+
+<h3>收集表填写要点</h3>
+<div class="card">
+  <p><strong>Sheet 1（Token计费）</strong>：MAAS侧填写所有已接入大模型（token计费），每个模型一行</p>
+  <p><strong>Sheet 2（非Token计费）</strong>：各业务方填写其他第三方计费服务（含大模型提供的工具服务），每个不同规格单独一行</p>
+  <p style="color:#64748b;font-size:12px;margin-bottom:0">不确定的字段可以填"待确认"，后续逐一对齐。</p>
+</div>
+
+<!-- 议程3：技术方案（占位） -->
+<h2>三、灵基计量计费的技术与协同方案</h2>
+<div class="card">
+  <p><strong>讲解人：黄明华</strong></p>
+  <p>内容包括：</p>
+  <ul>
+    <li>计量数据上报的两种接入方式（MAAS推送 / Console计量接口）</li>
+    <li>各业务方需要上报的数据字段和接口规范</li>
+    <li>对接流程和测试验证方法</li>
+    <li>技术问答</li>
+  </ul>
+</div>
+
+<div class="meta">灵基计量计费系统 · 外部服务接入会议 · 2026.07.09</div>
+</div>
+</body>
+</html>

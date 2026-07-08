@@ -105,7 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <aside class="side"><div class="side-t">KDManage</div><nav><a href="#">大模型系数管理</a><a href="#" class="on">计费公式管理</a><a href="#">运营管理</a><a href="#">许可管理</a></nav></aside>
 <main class="main">
 <div class="hdr"><h1>计费公式管理</h1><div class="hdr-acts"><button class="btn btn-s" onclick="showM('impM')">导入</button><button class="btn btn-s" onclick="msg('已导出全部公式配置')">导出</button><button class="btn btn-p" onclick="showM('createM')">+ 创建公式</button></div></div>
-<div class="tb"><input class="si" placeholder="搜索计费类型 / 供应商 / 服务规格" oninput="filter(this.value)"><div class="tb-r">共 <b id="cnt">8</b> 条配置</div></div>
+<div class="tb"><input class="si" placeholder="搜索计费类型 / 供应商 / 服务标识" oninput="filter(this.value)"><div class="tb-r">共 <b id="cnt">8</b> 条配置</div></div>
 <div class="sp">
 <div class="lp"><div class="lp-h">公式列表（按类型分组）</div><div class="lp-b" id="list"></div></div>
 <div class="rp"><div class="emp" id="emp"><div class="emp-i">⚙️</div><div class="emp-t">选择一条公式查看详情</div></div><div id="det" style="display:none"></div></div>
@@ -117,7 +117,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <div class="ov" id="createM"><div class="md"><div class="md-h"><div class="md-t">创建计费公式</div><button class="md-x" onclick="hideM('createM')">×</button></div><div class="md-b">
 <div class="fr"><div class="fg"><label class="fl">计费类型<span class="rq">*</span></label><select class="fs"><option value="">选择类型</option><option>WEBSEARCH</option><option>OCR</option><option>IMAGE_GEN</option><option>ASR</option><option>TTS</option><option>WPS</option><option>VIDEO_GEN</option></select></div>
 <div class="fg"><label class="fl">供应商<span class="rq">*</span></label><select class="fs"><option value="">选择供应商</option><option>Google</option><option>百度</option><option>讯飞</option><option>即梦</option><option>WPS</option><option>MiniMax</option><option>阿里/通义</option></select></div></div>
-<div class="fg"><label class="fl">服务规格<span class="rq">*</span></label><input class="fi" placeholder="如：通用识别 / 发票识别 / 1024 / 标准版"><div class="fh">该供应商下的具体产品/档位</div></div>
+<div class="fg"><label class="fl">服务标识<span class="rq">*</span></label><input class="fi" placeholder="厂商API标识（如 seedance-2.0 / baidu_ocr）"><div class="fh">厂商侧的API/产品标识，用于和厂商对账</div></div>
+<div class="fg"><label class="fl">输出规格</label><input class="fi" placeholder="如：720p / 1080p / 通用 / 发票（无规格差异可不填）"><div class="fh">同一服务下不同定价的档位</div></div>
 <div class="fg"><label class="fl">选择模板<span class="rq">*</span></label>
 <div class="tpl-grid">
 <div class="tpl-opt sel" onclick="selTpl(this,'T1')"><div class="tpl-opt-n">T1 按次计费</div><div class="tpl-opt-d">WebSearch、WPS</div></div>
@@ -128,7 +129,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <div class="tpl-opt" onclick="selTpl(this,'T6')"><div class="tpl-opt-n">T6 自定义公式</div><div class="tpl-opt-d">复杂场景</div></div>
 </div></div>
 <div id="tplFields">
-<div class="fr"><div class="fg"><label class="fl">单价（点数/次）<span class="rq">*</span></label><input type="number" class="fi" placeholder="如 0.67" step="0.01"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="次"></div></div>
+<div class="fr"><div class="fg"><label class="fl">单价（点数/次）<span class="rq">*</span></label><input type="number" class="fi" placeholder="如 0.67" step="0.01" id="cPrice" oninput="calcC()"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="次"></div></div>
+<div style="margin-top:12px;padding:12px 14px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.12);border-radius:8px"><div style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:8px">📐 即时试算</div><div id="cTrialArea"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#666">数量：</span><input type="number" style="width:80px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="1" id="cTestV" oninput="calcC()"><span id="cR" style="font-size:14px;font-weight:700;color:#276FF5"></span></div></div></div>
 </div>
 </div><div class="md-f"><button class="btn btn-s" onclick="hideM('createM')">取消</button><button class="btn btn-p" onclick="hideM('createM');msg('创建成功')">创建</button></div></div></div>
 
@@ -147,14 +149,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 const TM={T1:{n:'按次计费',f:'unit_price × metric_volume',b:'b-t1'},T2:{n:'按时长计费',f:'unit_price × Math.ceil(duration / billing_unit)',b:'b-t2'},T3:{n:'按字符量计费',f:'unit_price × Math.ceil(char_count / billing_unit)',b:'b-t3'},T4:{n:'按数量计费',f:'unit_price × metric_volume',b:'b-t4'},T5:{n:'阶梯计费',f:'tier_price(monthly_total) × metric_volume',b:'b-t5'},T6:{n:'自定义公式',f:'[QLExpress表达式]',b:'b-t6'}};
 
 const D=[
-{id:1,type:'WEBSEARCH',provider:'Google',spec:'搜索',tpl:'T1',price:0.67,unit:'次'},
-{id:2,type:'OCR',provider:'百度',spec:'通用识别',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:200,p:0},{th:10000,p:0.13},{th:-1,p:0.10}]},
-{id:3,type:'OCR',provider:'百度',spec:'发票识别',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:100,p:0},{th:5000,p:0.8},{th:-1,p:0.5}]},
-{id:4,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-2k',tpl:'T4',price:3.0,unit:'张'},
-{id:5,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-3k',tpl:'T4',price:4.5,unit:'张'},
-{id:6,type:'ASR',provider:'讯飞',spec:'标准版',tpl:'T2',price:0.1,unit:'15秒',billingUnit:15},
-{id:7,type:'TTS',provider:'阿里/通义',spec:'Qwen3-TTS-VD',tpl:'T3',price:0.5,unit:'万字符',billingUnit:10000},
-{id:8,type:'WPS',provider:'WPS',spec:'默认',tpl:'T1',price:1.0,unit:'次'},
+{id:1,type:'WEBSEARCH',provider:'Google',spec:'google_search_retrieval',grade:'',tpl:'T1',price:0.67,unit:'次'},
+{id:2,type:'OCR',provider:'百度',spec:'baidu_ocr',grade:'通用',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:200,p:0},{th:10000,p:0.13},{th:-1,p:0.10}]},
+{id:3,type:'OCR',provider:'百度',spec:'baidu_ocr',grade:'发票',tpl:'T5',unit:'次',tierMode:'INCREMENTAL',tiers:[{th:100,p:0},{th:5000,p:0.8},{th:-1,p:0.5}]},
+{id:4,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-5.0-lite',grade:'2K',tpl:'T4',price:3.0,unit:'张'},
+{id:5,type:'IMAGE_GEN',provider:'即梦',spec:'seedream-5.0-lite',grade:'3K',tpl:'T4',price:4.5,unit:'张'},
+{id:6,type:'ASR',provider:'讯飞',spec:'xunfei_asr',grade:'标准版',tpl:'T2',price:0.1,unit:'15秒',billingUnit:15},
+{id:7,type:'TTS',provider:'阿里/通义',spec:'qwen3-tts-vd',grade:'',tpl:'T3',price:0.5,unit:'万字符',billingUnit:10000},
+{id:8,type:'WPS',provider:'WPS',spec:'wps_doc',grade:'',tpl:'T1',price:1.0,unit:'次'},
 ];
 
 let cur=null;
@@ -166,7 +168,7 @@ function render(f=''){
   Object.entries(groups).forEach(([type,items])=>{
     h+=`<div class="grp">${type}</div>`;
     items.forEach(d=>{
-      h+=`<div class="fi-item${cur&&cur.id===d.id?' on':''}" onclick="sel(${d.id})"><div class="fi-n">${d.provider} · ${d.spec}</div><div class="fi-m"><span class="fi-badge ${TM[d.tpl].b}">${TM[d.tpl].n}</span>${d.price!=null?`<span style="font-family:monospace;font-size:11px;color:var(--c-text-s)">${d.price}点/${d.unit}</span>`:'<span style="font-size:11px;color:var(--c-text-m)">按阶梯</span>'}</div></div>`;
+      h+=`<div class="fi-item${cur&&cur.id===d.id?' on':''}" onclick="sel(${d.id})"><div class="fi-n">${d.provider} · ${d.spec}${d.grade?' · '+d.grade:''}</div><div class="fi-m"><span class="fi-badge ${TM[d.tpl].b}">${TM[d.tpl].n}</span>${d.price!=null?`<span style="font-family:monospace;font-size:11px;color:var(--c-text-s)">${d.price}点/${d.unit}</span>`:'<span style="font-size:11px;color:var(--c-text-m)">按阶梯</span>'}</div></div>`;
     });
   });
   document.getElementById('list').innerHTML=h;
@@ -180,7 +182,7 @@ function sel(id){
 }
 function renderDet(){
   const d=cur,tm=TM[d.tpl];
-  let h=`<div class="sec"><div class="sec-h"><div class="sec-t">基本信息</div></div><div class="ig"><div><div class="il">计费类型</div><div class="iv">${d.type}</div></div><div><div class="il">供应商</div><div class="iv">${d.provider}</div></div><div><div class="il">服务规格</div><div class="iv mo">${d.spec}</div></div><div><div class="il">模板</div><div class="iv"><span class="fi-badge ${tm.b}">${tm.n}</span></div></div>${d.price!=null?`<div><div class="il">单价</div><div class="iv mo">${d.price} 点/${d.unit}</div></div>`:''}${d.billingUnit?`<div><div class="il">计费单位</div><div class="iv">${d.billingUnit}${d.tpl==='T3'?'字符':'秒'}</div></div>`:''}<div><div class="il">公式版本</div><div class="iv mo">v1.0.20260703</div></div></div></div>`;
+  let h=`<div class="sec"><div class="sec-h"><div class="sec-t">基本信息</div></div><div class="ig"><div><div class="il">计费类型</div><div class="iv">${d.type}</div></div><div><div class="il">供应商</div><div class="iv">${d.provider}</div></div><div><div class="il">服务标识</div><div class="iv mo">${d.spec}</div></div><div><div class="il">输出规格</div><div class="iv">${d.grade||'-'}</div></div><div><div class="il">模板</div><div class="iv"><span class="fi-badge ${tm.b}">${tm.n}</span></div></div>${d.price!=null?`<div><div class="il">单价</div><div class="iv mo">${d.price} 点/${d.unit}</div></div>`:''}${d.billingUnit?`<div><div class="il">计费单位</div><div class="iv">${d.billingUnit}${d.tpl==='T3'?'字符':'秒'}</div></div>`:''}<div><div class="il">公式版本</div><div class="iv mo">v1.0.20260703</div></div></div></div>`;
   h+=`<div class="sec"><div class="sec-h"><div class="sec-t">计算公式</div></div><div class="fbox"><div class="fbox-l">${tm.n}</div><div class="fbox-c">${tm.f}</div></div></div>`;
   if(d.tiers){
     h+=`<div class="sec"><div class="sec-h"><div class="sec-t">阶梯规则</div></div><div style="margin-bottom:8px;font-size:12px;color:var(--c-text-s)">模式：<b>${d.tierMode==='INCREMENTAL'?'超额计费（电费模式）':'全量计费（档位模式）'}</b></div><table class="tier-tbl"><tr><th>段</th><th>累计量上限</th><th>单价（点/${d.unit}）</th></tr>`;
@@ -231,7 +233,8 @@ function openEdit(){
   }else if(cur.tpl==='T3'){
     h=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" value="${cur.price}" step="0.01"></div><div class="fg"><label class="fl">计费单位（字符数）<span class="rq">*</span></label><input type="number" class="fi" value="${cur.billingUnit}"></div></div>`;
   }else if(cur.tpl==='T5'){
-    h=`<div class="fg"><label class="fl">阶梯模式</label><select class="fs"><option ${cur.tierMode==='INCREMENTAL'?'selected':''}>超额计费（电费模式）</option><option ${cur.tierMode==='TIERED'?'selected':''}>全量计费（档位模式）</option></select></div>`;
+    h=`<div class="fr"><div class="fg"><label class="fl">阶梯类型<span class="rq">*</span></label><select class="fs"><option selected>周期内阶梯（到期清零）</option><option>累计阶梯（永不清零）</option></select></div><div class="fg"><label class="fl">阶梯周期</label><select class="fs"><option selected>自然月</option><option>自然周</option><option>自然季度</option></select></div></div>`;
+    h+=`<div class="fg"><label class="fl">阶梯模式</label><select class="fs"><option ${cur.tierMode==='INCREMENTAL'?'selected':''}>超额计费（电费模式）</option><option ${cur.tierMode==='TIERED'?'selected':''}>全量计费（档位模式）</option></select></div>`;
     h+=`<div class="fg"><label class="fl">阶梯规则</label><table class="tier-tbl" style="border:1px solid var(--c-border);border-radius:8px;overflow:hidden"><tr><th>累计量上限</th><th>单价（点/${cur.unit}）</th><th></th></tr>`;
     cur.tiers.forEach((t,i)=>{
       if(t.th===-1){h+=`<tr><td><span style="color:var(--c-text-m)">∞（兜底）</span></td><td><input type="number" class="fi" value="${t.p}" style="width:80px;height:28px" step="0.01"></td><td></td></tr>`;}
@@ -248,16 +251,36 @@ function doDel(){if(confirm(`确定删除「${cur.provider} · ${cur.spec}」的
 function selTpl(el,tpl){
   document.querySelectorAll('.tpl-opt').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');
   const f=document.getElementById('tplFields');
-  if(tpl==='T1'||tpl==='T4')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" placeholder="点数/次" step="0.01"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="${tpl==='T4'?'张':'次'}"></div></div>`;
-  else if(tpl==='T2')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01"></div><div class="fg"><label class="fl">计费单位（秒）<span class="rq">*</span></label><input type="number" class="fi" placeholder="如 15" value="15"></div></div><div class="fh">厂商按多少秒为一个计费单位</div>`;
-  else if(tpl==='T3')f.innerHTML=`<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01"></div><div class="fg"><label class="fl">计费单位（字符数）<span class="rq">*</span></label><input type="number" class="fi" value="10000"></div></div><div class="fh">每多少字符为一个计费单位</div>`;
-  else if(tpl==='T5')f.innerHTML=`<div class="fg"><label class="fl">阶梯模式<span class="rq">*</span></label><select class="fs"><option>超额计费（电费模式）</option><option>全量计费（档位模式）</option></select><div class="fh">超额计费：每段按该段单价；全量计费：当前调用按所在段统一价</div></div><div class="fg"><label class="fl">阶梯规则<span class="rq">*</span></label><table class="tier-tbl" style="border:1px solid var(--c-border);border-radius:8px;overflow:hidden"><tr><th>累计量上限</th><th>单价（点/次）</th><th></th></tr><tr><td><input type="number" class="fi" value="200" style="width:100px;height:28px"></td><td><input type="number" class="fi" value="0" style="width:80px;height:28px"></td><td><button class="btn btn-sm btn-t" style="color:var(--c-danger)">删除</button></td></tr><tr><td><input type="number" class="fi" value="10000" style="width:100px;height:28px"></td><td><input type="number" class="fi" value="0.13" style="width:80px;height:28px"></td><td><button class="btn btn-sm btn-t" style="color:var(--c-danger)">删除</button></td></tr><tr><td><span style="color:var(--c-text-m)">∞</span></td><td><input type="number" class="fi" value="0.10" style="width:80px;height:28px"></td><td></td></tr></table><button class="btn btn-sm btn-t" style="margin-top:8px">+ 添加阶梯段</button></div>`;
-  else if(tpl==='T6')f.innerHTML=`<div class="fg"><label class="fl">公式表达式<span class="rq">*</span></label><textarea style="width:100%;min-height:80px;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--r-md);font-size:13px;font-family:'SF Mono',Monaco,monospace;outline:none;resize:vertical" placeholder="如：base * Math.ceil(duration / 10.0) * resolution_factor"></textarea><div class="fh">使用QLExpress语法，变量从event_data中自动注入</div></div>`;
+  const trial='<div style="margin-top:12px;padding:12px 14px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.12);border-radius:8px"><div style="font-size:12px;font-weight:600;color:#b45309;margin-bottom:8px">📐 即时试算</div><div id="cTrialArea"></div></div>';
+  if(tpl==='T1'||tpl==='T4'){
+    f.innerHTML='<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" placeholder="点数/次" step="0.01" id="cPrice" oninput="calcC()"></div><div class="fg"><label class="fl">计费单位名称</label><input class="fi" value="'+(tpl==='T4'?'张':'次')+'"></div></div>'+trial;
+    document.getElementById('cTrialArea').innerHTML='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#666">数量：</span><input type="number" style="width:80px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="1" id="cTestV" oninput="calcC()"><span id="cR" style="font-size:14px;font-weight:700;color:#276FF5"></span></div>';calcC();
+  }else if(tpl==='T2'){
+    f.innerHTML='<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01" id="cPrice" oninput="calcC()"></div><div class="fg"><label class="fl">计费单位（秒）<span class="rq">*</span></label><input type="number" class="fi" value="15" id="cUnit" oninput="calcC()"></div></div><div class="fh">厂商按多少秒为一个计费单位</div>'+trial;
+    document.getElementById('cTrialArea').innerHTML='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#666">时长（秒）：</span><input type="number" style="width:80px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="38" id="cTestV" oninput="calcC()"><span id="cR" style="font-size:14px;font-weight:700;color:#276FF5"></span></div>';calcC();
+  }else if(tpl==='T3'){
+    f.innerHTML='<div class="fr"><div class="fg"><label class="fl">单价<span class="rq">*</span></label><input type="number" class="fi" step="0.01" id="cPrice" oninput="calcC()"></div><div class="fg"><label class="fl">计费单位（字符数）<span class="rq">*</span></label><input type="number" class="fi" value="10000" id="cUnit" oninput="calcC()"></div></div><div class="fh">每多少字符为一个计费单位</div>'+trial;
+    document.getElementById('cTrialArea').innerHTML='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:#666">字符数：</span><input type="number" style="width:80px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="25000" id="cTestV" oninput="calcC()"><span id="cR" style="font-size:14px;font-weight:700;color:#276FF5"></span></div>';calcC();
+  }else if(tpl==='T5'){
+    f.innerHTML='<div class="fr"><div class="fg"><label class="fl">阶梯类型<span class="rq">*</span></label><select class="fs"><option>周期内阶梯（到期清零）</option><option>累计阶梯（永不清零）</option></select></div><div class="fg"><label class="fl">阶梯周期</label><select class="fs"><option>自然月</option><option>自然周</option><option>自然季度</option></select><div class="fh">仅周期内阶梯需选</div></div></div><div class="fg"><label class="fl">阶梯模式<span class="rq">*</span></label><select class="fs"><option>超额计费（电费模式）</option><option>全量计费（档位模式）</option></select></div><div class="fg"><label class="fl">阶梯规则<span class="rq">*</span></label><table class="tier-tbl" style="border:1px solid #e5e5e5;border-radius:8px;overflow:hidden"><tr><th>累计量上限</th><th>单价（点/次）</th><th></th></tr><tr><td><input type="number" class="fi" value="50000" style="width:100px;height:28px" id="cT1"></td><td><input type="number" class="fi" value="0.040" style="width:80px;height:28px" id="cP1" oninput="calcC()"></td><td></td></tr><tr><td><input type="number" class="fi" value="100000" style="width:100px;height:28px" id="cT2"></td><td><input type="number" class="fi" value="0.034" style="width:80px;height:28px" id="cP2" oninput="calcC()"></td><td></td></tr><tr><td><span style="color:#999">∞</span></td><td><input type="number" class="fi" value="0.020" style="width:80px;height:28px" id="cP3" oninput="calcC()"></td><td></td></tr></table></div>'+trial;
+    document.getElementById('cTrialArea').innerHTML='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">累计量：</span><input type="number" style="width:80px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="60000" id="cTestTotal" oninput="calcC()"><span style="font-size:12px;color:#666;margin-left:8px">本次：</span><input type="number" style="width:60px;height:28px;padding:0 6px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" value="1" id="cTestV" oninput="calcC()"><span id="cR" style="font-size:14px;font-weight:700;color:#276FF5"></span></div>';calcC();
+  }else if(tpl==='T6'){
+    f.innerHTML='<div class="fg"><label class="fl">公式表达式<span class="rq">*</span></label><textarea style="width:100%;min-height:80px;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:monospace;outline:none;resize:vertical" placeholder="如：base * Math.ceil(duration / 10.0) * resolution_factor" id="cFormula" oninput="calcC()"></textarea><div class="fh">使用QLExpress语法，变量从event_data中自动注入</div></div>'+trial;
+    document.getElementById('cTrialArea').innerHTML='<div><div style="font-size:12px;color:#666;margin-bottom:6px">输入变量（每行 key=value）：</div><textarea style="width:100%;height:60px;padding:8px;border:1px solid #e5e5e5;border-radius:4px;font-size:12px;font-family:monospace" placeholder="base=1.0\nduration=15\nresolution_factor=1.5" id="cTestVars" oninput="calcC()"></textarea><div id="cR" style="font-size:14px;font-weight:700;color:#276FF5;margin-top:8px"></div></div>';calcC();
+  }
 }
-
+function calcC(){
+  var tpl='T1';document.querySelectorAll('.tpl-opt').forEach(function(e){if(e.classList.contains('sel'))tpl=e.querySelector('.tpl-opt-n').textContent.split(' ')[0];});
+  var r=document.getElementById('cR');if(!r)return;
+  if(tpl==='T1'||tpl==='T4'){var p=parseFloat(document.getElementById('cPrice')&&document.getElementById('cPrice').value)||0;var n=parseInt(document.getElementById('cTestV')&&document.getElementById('cTestV').value)||1;r.textContent='= '+(p*n).toFixed(2)+' 点';}
+  else if(tpl==='T2'){var p=parseFloat(document.getElementById('cPrice')&&document.getElementById('cPrice').value)||0;var u=parseInt(document.getElementById('cUnit')&&document.getElementById('cUnit').value)||15;var v=parseInt(document.getElementById('cTestV')&&document.getElementById('cTestV').value)||0;var units=Math.ceil(v/u);r.textContent='= '+(p*units).toFixed(2)+' 点（'+units+'个计费单位）';}
+  else if(tpl==='T3'){var p=parseFloat(document.getElementById('cPrice')&&document.getElementById('cPrice').value)||0;var u=parseInt(document.getElementById('cUnit')&&document.getElementById('cUnit').value)||1000;var v=parseInt(document.getElementById('cTestV')&&document.getElementById('cTestV').value)||0;var units=Math.ceil(v/u);r.textContent='= '+(p*units).toFixed(2)+' 点（'+units+'个计费单位）';}
+  else if(tpl==='T5'){var t1=parseInt(document.getElementById('cT1')&&document.getElementById('cT1').value)||200;var t2=parseInt(document.getElementById('cT2')&&document.getElementById('cT2').value)||10000;var p1=parseFloat(document.getElementById('cP1')&&document.getElementById('cP1').value)||0;var p2=parseFloat(document.getElementById('cP2')&&document.getElementById('cP2').value)||0;var p3=parseFloat(document.getElementById('cP3')&&document.getElementById('cP3').value)||0;var total=parseInt(document.getElementById('cTestTotal')&&document.getElementById('cTestTotal').value)||0;var n=parseInt(document.getElementById('cTestV')&&document.getElementById('cTestV').value)||1;var price=p3;if(total<=t1)price=p1;else if(total<=t2)price=p2;r.textContent='= '+(price*n).toFixed(2)+' 点（累计'+total+'→单价'+price+'）';}
+  else if(tpl==='T6'){var formula=(document.getElementById('cFormula')&&document.getElementById('cFormula').value)||'';var vars=(document.getElementById('cTestVars')&&document.getElementById('cTestVars').value)||'';if(!formula){r.textContent='请输入公式';return;}try{var ctx={};vars.split('\n').forEach(function(line){var parts=line.split('=');if(parts[0]&&parts[1])ctx[parts[0].trim()]=parseFloat(parts[1].trim());});var expr=formula;Object.keys(ctx).forEach(function(k){expr=expr.replace(new RegExp('\\\\b'+k+'\\\\b','g'),ctx[k]);});var result=eval(expr);r.textContent='= '+(typeof result==='number'?result.toFixed(4):result)+' 点';}catch(e){r.textContent='公式错误：'+e.message;}}
+}
 function showM(id){document.getElementById(id).classList.add('show')}
 function hideM(id){document.getElementById(id).classList.remove('show')}
-function msg(t){const e=document.getElementById('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2000)}
+function msg(t){var e=document.getElementById('toast');e.textContent=t;e.style.display='block';setTimeout(function(){e.style.display='none'},2000)}
 render();
 sel(D[0].id);
 </script>
